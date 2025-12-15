@@ -1,0 +1,23 @@
+<svg width="180" height="40" viewBox="0 0 180 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <text
+    x="0"
+    y="28"
+    font-size="26"
+    font-weight="600"
+    fill="#FFFFFF"
+    font-family="Poppins, Nunito, Inter, system-ui, sans-serif"
+  >
+    En
+  </text>
+
+  <text
+    x="32"
+    y="28"
+    font-size="26"
+    font-weight="800"
+    fill="#FF6A3D"
+    font-family="Poppins, Nunito, Inter, system-ui, sans-serif"
+  >
+    Casa
+  </text>
+</svg>
