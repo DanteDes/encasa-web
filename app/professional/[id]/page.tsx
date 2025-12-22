@@ -229,3 +229,9 @@ export async function generateStaticParams() {
     id: professional.id,
   }));
 }
+
+
+
+
+
+

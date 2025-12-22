@@ -435,3 +435,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 **Versión**: 1.0
 **Autor**: Dante
 
+
+
+
+
+
+

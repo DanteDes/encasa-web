@@ -247,3 +247,9 @@ Actualmente usando emojis Unicode para:
 ---
 
 Esta guía asegura coherencia visual en todo el proyecto y facilita futuras ampliaciones.
+
+
+
+
+
+

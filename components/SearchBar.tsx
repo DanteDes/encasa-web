@@ -40,3 +40,9 @@ export default function SearchBar({ onSearch, placeholder = 'Buscar servicios o 
   );
 }
 
+
+
+
+
+
+
