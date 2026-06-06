@@ -7,28 +7,41 @@ export interface Service {
 }
 
 export interface Professional {
-  id: string;
+  id: number;
+  userId?: number | null;
   name: string;
   service: string;
   serviceId: string;
   rating: number;
   reviewCount: number;
-  hourlyRate: number;
-  image: string;
-  location: string;
-  description: string;
-  experience: number;
+  hourlyRate: number | null;
+  image: string | null;
+  location: string | null;
+  description: string | null;
+  experience: number | null;
   verified: boolean;
-  availability: "disponible" | "ocupado" | "no-disponible";
+  availability: string;
 }
 
 export interface Review {
-  id: string;
-  professionalId: string;
-  clientName: string;
+  id: number;
+  bookingId: number;
+  clientUserId: number;
+  professionalId: number;
   rating: number;
-  comment: string;
-  date: string;
+  comment: string | null;
+  createdAt: string;
+}
+
+export interface UserProfile {
+  id: number;
+  email: string;
+  name: string | null;
+  phone: string | null;
+  avatar: string | null;
+  bio: string | null;
+  location: string | null;
+  role: string;
 }
 
 export interface Testimonial {

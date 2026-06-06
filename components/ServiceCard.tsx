@@ -8,7 +8,7 @@ interface ServiceCardProps {
 export default function ServiceCard({ service }: ServiceCardProps) {
   return (
     <Link href={`/services/${service.id}`} className="block group">
-      <div className="relative bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 md:p-6 transition-all duration-300 hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-xl hover:-translate-y-1">
+      <div className="relative bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 md:p-6 transition-all duration-300 hover:border-orange-500 dark:hover:border-orange-500 hover:shadow-xl hover:-translate-y-1">
         {/* Badge de disponibilidad */}
         <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
           <span className="text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 px-2 py-1 rounded-full">
@@ -24,7 +24,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
         </div>
 
         {/* Título */}
-        <h3 className="text-lg md:text-xl font-bold mb-2 text-zinc-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+        <h3 className="text-lg md:text-xl font-bold mb-2 text-zinc-900 dark:text-white group-hover:text-orange-500 dark:group-hover:text-orange-400 transition-colors">
           {service.name}
         </h3>
 
@@ -35,11 +35,11 @@ export default function ServiceCard({ service }: ServiceCardProps) {
 
         {/* CTA */}
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-blue-600 dark:text-blue-400 group-hover:underline">
+          <span className="text-sm font-medium text-orange-500 dark:text-orange-400 group-hover:underline">
             Ver profesionales
           </span>
           <svg
-            className="w-5 h-5 text-blue-600 dark:text-blue-400 transform group-hover:translate-x-1 transition-transform"
+            className="w-5 h-5 text-orange-500 dark:text-orange-400 transform group-hover:translate-x-1 transition-transform"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

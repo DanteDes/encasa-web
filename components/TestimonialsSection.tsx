@@ -1,152 +1,158 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { testimonials } from "@/data/testimonials";
+import { apiFetch } from "@/lib/api";
+import { Review } from "@/types";
+
+function formatDate(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const days = Math.floor(diff / 86400000);
+  if (days === 0) return "Hoy";
+  if (days === 1) return "Hace 1 día";
+  if (days < 30) return `Hace ${Math.floor(days / 7) || 1} semana${days >= 14 ? "s" : ""}`;
+  if (days < 60) return "Hace 1 mes";
+  return `Hace ${Math.floor(days / 30)} meses`;
+}
 
 export default function TestimonialsSection() {
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  // Auto-rotate testimonials
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-
-    return () => clearInterval(timer);
+    apiFetch<Review[]>("/reviews")
+      .then(setReviews)
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
-  const visibleTestimonials = [
-    testimonials[currentIndex],
-    testimonials[(currentIndex + 1) % testimonials.length],
-    testimonials[(currentIndex + 2) % testimonials.length],
-  ];
+  useEffect(() => {
+    if (reviews.length < 2) return;
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % reviews.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [reviews.length]);
+
+  if (loading) {
+    return (
+      <section className="py-16 md:py-20 bg-zinc-50 dark:bg-zinc-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-48 bg-zinc-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (reviews.length === 0) return null;
+
+  const visible = [
+    reviews[currentIndex % reviews.length],
+    reviews[(currentIndex + 1) % reviews.length],
+    reviews[(currentIndex + 2) % reviews.length],
+  ].filter(Boolean);
 
   return (
     <section className="py-16 md:py-20 bg-zinc-50 dark:bg-zinc-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-yellow-100 dark:bg-yellow-900 px-4 py-2 rounded-full mb-4">
-            <span className="text-yellow-600 dark:text-yellow-300">★★★★★</span>
-            <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-              4.9 de 5 estrellas
+          <div className="inline-flex items-center gap-2 bg-orange-100 dark:bg-orange-900/30 px-4 py-2 rounded-full mb-4">
+            <span className="text-orange-500 dark:text-orange-300">★★★★★</span>
+            <span className="text-sm font-medium text-orange-800 dark:text-orange-200">
+              Reseñas verificadas
             </span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-3 text-zinc-900 dark:text-white">
-            Más de 850 vecinos de Mar del Plata
-            <br />
-            ya encontraron su profesional
+            Lo que dicen nuestros clientes
           </h2>
           <p className="text-lg text-zinc-600 dark:text-zinc-400">
             Reseñas 100% reales de clientes verificados
           </p>
         </div>
 
-        {/* Testimonials Grid */}
+        {/* Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {visibleTestimonials.map((testimonial, index) => (
+          {visible.map((review, index) => (
             <div
-              key={testimonial.id}
-              className="bg-white dark:bg-zinc-950 rounded-2xl p-6 border-2 border-zinc-200 dark:border-zinc-800 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300 hover:shadow-xl"
-              style={{
-                animation: `fadeIn 0.5s ease-in ${index * 0.1}s`,
-              }}
+              key={review.id}
+              className="bg-white dark:bg-zinc-950 rounded-2xl p-6 border-2 border-zinc-200 dark:border-zinc-800 hover:border-orange-500 dark:hover:border-orange-500 transition-all duration-300 hover:shadow-xl"
+              style={{ animation: `fadeIn 0.5s ease-in ${index * 0.1}s` }}
             >
-              {/* Rating */}
+              {/* Stars */}
               <div className="flex items-center gap-1 mb-3">
-                {[...Array(testimonial.rating)].map((_, i) => (
-                  <span key={i} className="text-yellow-500 text-lg">
-                    ★
-                  </span>
+                {[...Array(review.rating)].map((_, i) => (
+                  <span key={i} className="text-yellow-500 text-lg">★</span>
                 ))}
               </div>
 
               {/* Comment */}
               <p className="text-zinc-700 dark:text-zinc-300 mb-4 text-sm leading-relaxed">
-                "{testimonial.comment}"
+                "{review.comment ?? "Excelente servicio."}"
               </p>
 
-              {/* Author info */}
-              <div className="flex items-start justify-between pt-4 border-t border-zinc-200 dark:border-zinc-800">
-                <div>
-                  <p className="font-semibold text-zinc-900 dark:text-white text-sm">
-                    {testimonial.name}
-                  </p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    {testimonial.location} • {testimonial.date}
-                  </p>
+              {/* Author */}
+              <div className="flex items-center justify-between pt-4 border-t border-zinc-200 dark:border-zinc-800">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-orange-600 dark:text-orange-400 text-sm font-bold">
+                    C
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-zinc-900 dark:text-white">
+                      Cliente verificado
+                    </p>
+                    <p className="text-xs text-zinc-500">
+                      {formatDate(review.createdAt)}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-xs text-zinc-600 dark:text-zinc-400">
-                    Contrató a:
-                  </p>
-                  <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
-                    {testimonial.professionalName}
-                  </p>
-                </div>
-              </div>
-
-              {/* Service badge */}
-              <div className="mt-3">
-                <span className="inline-block bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full text-xs font-medium">
-                  {testimonial.service}
-                </span>
               </div>
             </div>
           ))}
         </div>
 
         {/* Indicators */}
-        <div className="flex justify-center gap-2">
-          {testimonials.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                index === currentIndex
-                  ? "bg-blue-600 w-8"
-                  : "bg-zinc-300 dark:bg-zinc-700"
-              }`}
-              aria-label={`Go to testimonial ${index + 1}`}
-            />
-          ))}
-        </div>
+        {reviews.length > 1 && (
+          <div className="flex justify-center gap-2">
+            {reviews.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`h-2 rounded-full transition-all ${
+                  index === currentIndex
+                    ? "bg-orange-500 w-8"
+                    : "bg-zinc-300 dark:bg-zinc-700 w-2"
+                }`}
+                aria-label={`Ir a reseña ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
 
-        {/* Trust badge */}
-        <div className="mt-12 text-center">
-          <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
-            Todas las reseñas son verificadas. Solo pueden calificar clientes
-            que contrataron.
+        {/* Trust */}
+        <div className="mt-10 text-center">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
+            Todas las reseñas son verificadas. Solo pueden calificar clientes que contrataron.
           </p>
           <div className="flex items-center justify-center gap-6 flex-wrap">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">✓</span>
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Identidad verificada
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">⭐</span>
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Solo clientes reales
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">📝</span>
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Trabajo completado
-              </span>
-            </div>
+            {[
+              { icon: "✓", label: "Identidad verificada" },
+              { icon: "⭐", label: "Solo clientes reales" },
+              { icon: "📝", label: "Trabajo completado" },
+            ].map(({ icon, label }) => (
+              <div key={label} className="flex items-center gap-2">
+                <span className="text-xl">{icon}</span>
+                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
     </section>
   );
 }
-
-
-
-
-
-
-
