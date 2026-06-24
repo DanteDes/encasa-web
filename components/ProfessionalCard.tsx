@@ -26,10 +26,12 @@ export default function ProfessionalCard({
     },
   };
 
-  const config = availabilityConfig[professional.availability];
+  const config =
+    availabilityConfig[professional.availability as keyof typeof availabilityConfig] ??
+    availabilityConfig["no-disponible"];
 
   return (
-    <div className="group bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-2xl transition-all duration-300">
+    <div className="group bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden hover:border-orange-500 dark:hover:border-orange-500 hover:shadow-2xl transition-all duration-300">
       {/* Header con estado */}
       <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-zinc-800 dark:to-zinc-800 px-5 py-3 border-b border-zinc-200 dark:border-zinc-700">
         <div className="flex items-center justify-between">
@@ -57,7 +59,7 @@ export default function ProfessionalCard({
         <div className="flex items-start gap-4 mb-4">
           {/* Avatar */}
           <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-zinc-800 dark:to-zinc-700 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0 shadow-md">
-            {professional.image}
+            {professional.image ?? "👤"}
           </div>
 
           {/* Info básica */}
@@ -120,7 +122,9 @@ export default function ProfessionalCard({
 
           <div className="text-right">
             <div className="text-2xl font-bold text-zinc-900 dark:text-white">
-              ${professional.hourlyRate.toLocaleString()}
+              {professional.hourlyRate != null
+                ? `$${professional.hourlyRate.toLocaleString()}`
+                : "A consultar"}
             </div>
             <div className="text-xs text-zinc-500">por hora</div>
           </div>
@@ -130,12 +134,12 @@ export default function ProfessionalCard({
         <div className="flex gap-2">
           <Link
             href={`/professional/${professional.id}`}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-center py-3 rounded-xl font-semibold transition-colors shadow-md hover:shadow-lg"
+            className="flex-1 bg-orange-500 hover:bg-orange-600 text-white text-center py-3 rounded-xl font-semibold transition-colors shadow-md hover:shadow-lg"
           >
             Ver Perfil
           </Link>
           <button
-            className="px-4 py-3 border-2 border-blue-600 text-blue-600 dark:text-blue-400 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors font-medium"
+            className="px-4 py-3 border-2 border-orange-500 text-orange-500 dark:text-orange-400 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-950/20 transition-colors font-medium"
             title="Guardar en favoritos"
           >
             <svg

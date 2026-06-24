@@ -2,7 +2,7 @@ import { Professional } from "@/types";
 
 export const professionals: Professional[] = [
   {
-    id: "1",
+    id: 1,
     name: "Roberto Martínez",
     service: "Electricidad",
     serviceId: "electricidad",
@@ -18,7 +18,7 @@ export const professionals: Professional[] = [
     availability: "disponible",
   },
   {
-    id: "2",
+    id: 2,
     name: "Claudia Fernández",
     service: "Limpieza",
     serviceId: "limpieza",
@@ -34,7 +34,7 @@ export const professionals: Professional[] = [
     availability: "disponible",
   },
   {
-    id: "3",
+    id: 3,
     name: "Jorge Suárez",
     service: "Plomería",
     serviceId: "plomeria",
@@ -50,7 +50,7 @@ export const professionals: Professional[] = [
     availability: "ocupado",
   },
   {
-    id: "4",
+    id: 4,
     name: "Ana García",
     service: "Pintura",
     serviceId: "pintura",
@@ -66,7 +66,7 @@ export const professionals: Professional[] = [
     availability: "disponible",
   },
   {
-    id: "5",
+    id: 5,
     name: "Martín Rodríguez",
     service: "Carpintería",
     serviceId: "carpinteria",
@@ -82,7 +82,7 @@ export const professionals: Professional[] = [
     availability: "disponible",
   },
   {
-    id: "6",
+    id: 6,
     name: "Laura Sánchez",
     service: "Aire Acondicionado",
     serviceId: "aire-acondicionado",
@@ -98,7 +98,7 @@ export const professionals: Professional[] = [
     availability: "disponible",
   },
   {
-    id: "7",
+    id: 7,
     name: "Diego Torres",
     service: "Cerrajería",
     serviceId: "cerrajeria",
@@ -114,7 +114,7 @@ export const professionals: Professional[] = [
     availability: "disponible",
   },
   {
-    id: "8",
+    id: 8,
     name: "Patricia González",
     service: "Jardinería",
     serviceId: "jardineria",

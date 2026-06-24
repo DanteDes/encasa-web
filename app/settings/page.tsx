@@ -90,15 +90,9 @@ export default async function SettingsPage() {
               </p>
             </div>
 
-            <div className="flex gap-4 pt-4">
-              <button
-                type="submit"
-                disabled
-                className="px-6 py-3 bg-zinc-300 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg font-medium cursor-not-allowed"
-              >
-                Guardar cambios (próximamente)
-              </button>
-            </div>
+            <p className="text-xs text-zinc-400 dark:text-zinc-500 pt-2">
+              Los datos de nombre y email provienen de tu cuenta de Google y no pueden modificarse desde aquí.
+            </p>
           </form>
         </div>
 
