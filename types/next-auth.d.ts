@@ -18,12 +18,6 @@ declare module "next-auth/jwt" {
   interface JWT {
     backendToken?: string;
     role?: string;
+    roleRefreshedAt?: number;
   }
 }
-
-
-
-
-
-
-

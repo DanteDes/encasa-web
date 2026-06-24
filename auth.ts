@@ -1,6 +1,8 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 
+const FIVE_MINUTES = 5 * 60 * 1000;
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Google({
@@ -27,30 +29,56 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
     async jwt({ token, account }) {
+      const apiUrl =
+        process.env.BACKEND_URL ??
+        process.env.NEXT_PUBLIC_API_URL ??
+        "http://localhost:8080";
+      const now = Date.now();
+
       if (account) {
+        // First sign-in: sync user to backend
         try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
           const res = await fetch(`${apiUrl}/auth/sync`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: token.email, name: token.name }),
+            body: JSON.stringify({
+              email: token.email,
+              name: token.name,
+              image: token.picture,
+            }),
           });
           if (res.ok) {
             const data = await res.json();
             token.backendToken = data.token;
-
-            const profileRes = await fetch(`${apiUrl}/users/me`, {
-              headers: { Authorization: `Bearer ${data.token}` },
-            });
-            if (profileRes.ok) {
-              const profile = await profileRes.json();
-              token.role = profile.role;
-            }
+            token.roleRefreshedAt = now;
           }
         } catch {
-          // Backend unavailable — backendToken and role will be absent
+          // Backend unavailable on sign-in
         }
       }
+
+      // Refresh role from backend every 5 minutes so role changes
+      // (e.g. user creates professional profile) reflect without re-login
+      const needsRefresh =
+        token.backendToken &&
+        (!token.roleRefreshedAt ||
+          now - (token.roleRefreshedAt as number) > FIVE_MINUTES);
+
+      if (needsRefresh) {
+        try {
+          const profileRes = await fetch(`${apiUrl}/users/me`, {
+            headers: { Authorization: `Bearer ${token.backendToken}` },
+          });
+          if (profileRes.ok) {
+            const profile = await profileRes.json();
+            token.role = profile.role;
+            token.roleRefreshedAt = now;
+          }
+        } catch {
+          // Backend unavailable for role refresh
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
@@ -64,7 +92,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 días
+    maxAge: 30 * 24 * 60 * 60,
   },
   debug: process.env.NODE_ENV === "development",
 });
