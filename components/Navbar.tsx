@@ -25,28 +25,26 @@ export default function Navbar() {
 
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-6">
-            {session?.user ? (
+            {/* Logged-in nav */}
+            {session?.user && (
               isProfessional ? (
-                /* Professional nav: Dashboard → Perfil → Servicios → Profesionales */
                 <>
-                  <Link href="/dashboard" className={navLink}>Dashboard</Link>
-                  <Link href="/profile" className={navLink}>Perfil</Link>
+                  <Link href="/dashboard" className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors text-sm font-semibold">
+                    Dashboard
+                  </Link>
+                  <Link href="/profile" className="border border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-200 px-4 py-2 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors text-sm font-semibold">
+                    Mi Perfil
+                  </Link>
+                  <span className="w-px h-5 bg-zinc-200 dark:bg-zinc-700" />
                   <Link href="/services" className={navLink}>Servicios</Link>
                   <Link href="/professionals" className={navLink}>Profesionales</Link>
                 </>
               ) : (
-                /* Client nav: Servicios → Profesionales */
                 <>
                   <Link href="/services" className={navLink}>Servicios</Link>
                   <Link href="/professionals" className={navLink}>Profesionales</Link>
                 </>
               )
-            ) : (
-              /* Anonymous nav */
-              <>
-                <Link href="/services" className={navLink}>Servicios</Link>
-                <Link href="/professionals" className={navLink}>Profesionales</Link>
-              </>
             )}
 
             {/* User avatar + dropdown */}
@@ -137,14 +135,34 @@ export default function Navbar() {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-zinc-200 dark:border-zinc-800">
             <div className="flex flex-col gap-1">
+              {session?.user && isProfessional && (
+                <>
+                  <Link href="/dashboard" onClick={() => setIsMenuOpen(false)} className="bg-orange-500 text-white px-4 py-3 rounded-lg text-sm font-semibold text-center hover:bg-orange-600 transition-colors">
+                    Dashboard
+                  </Link>
+                  <Link href="/profile" onClick={() => setIsMenuOpen(false)} className="border border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-200 px-4 py-3 rounded-lg text-sm font-semibold text-center hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
+                    Mi Perfil
+                  </Link>
+                  <hr className="border-zinc-200 dark:border-zinc-700" />
+                </>
+              )}
+
+              {session?.user && (
+                <>
+                  <MobileLink href="/services" onClick={() => setIsMenuOpen(false)}>Servicios</MobileLink>
+                  <MobileLink href="/professionals" onClick={() => setIsMenuOpen(false)}>Profesionales</MobileLink>
+                </>
+              )}
+
               {session?.user ? (
                 <>
                   {/* User info */}
-                  <div className="flex items-center gap-3 px-2 py-3 mb-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl">
+                  <hr className="border-zinc-200 dark:border-zinc-800 my-1" />
+                  <div className="flex items-center gap-3 px-2 py-2">
                     {session.user.image ? (
-                      <img src={session.user.image} alt={session.user.name ?? "User"} className="w-9 h-9 rounded-full" />
+                      <img src={session.user.image} alt={session.user.name ?? "User"} className="w-8 h-8 rounded-full" />
                     ) : (
-                      <div className="w-9 h-9 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-sm font-bold">
+                      <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-sm font-bold">
                         {session.user.name?.[0] ?? "U"}
                       </div>
                     )}
@@ -159,24 +177,10 @@ export default function Navbar() {
                       </span>
                     </div>
                   </div>
-
-                  {isProfessional ? (
-                    <>
-                      <MobileLink href="/dashboard" onClick={() => setIsMenuOpen(false)}>Dashboard</MobileLink>
-                      <MobileLink href="/profile" onClick={() => setIsMenuOpen(false)}>Perfil</MobileLink>
-                      <MobileLink href="/services" onClick={() => setIsMenuOpen(false)}>Servicios</MobileLink>
-                      <MobileLink href="/professionals" onClick={() => setIsMenuOpen(false)}>Profesionales</MobileLink>
-                    </>
-                  ) : (
-                    <>
-                      <MobileLink href="/services" onClick={() => setIsMenuOpen(false)}>Servicios</MobileLink>
-                      <MobileLink href="/professionals" onClick={() => setIsMenuOpen(false)}>Profesionales</MobileLink>
-                      <MobileLink href="/profile" onClick={() => setIsMenuOpen(false)}>Mi Perfil</MobileLink>
-                    </>
+                  {!isProfessional && (
+                    <MobileLink href="/profile" onClick={() => setIsMenuOpen(false)}>Mi Perfil</MobileLink>
                   )}
                   <MobileLink href="/settings" onClick={() => setIsMenuOpen(false)}>Configuración</MobileLink>
-
-                  <hr className="border-zinc-200 dark:border-zinc-800 my-1" />
                   <button
                     onClick={() => signOut({ callbackUrl: "/" })}
                     className="text-left px-3 py-2.5 text-sm text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20"
@@ -186,8 +190,6 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <MobileLink href="/services" onClick={() => setIsMenuOpen(false)}>Servicios</MobileLink>
-                  <MobileLink href="/professionals" onClick={() => setIsMenuOpen(false)}>Profesionales</MobileLink>
                   <hr className="border-zinc-200 dark:border-zinc-800 my-1" />
                   <MobileLink href="/auth/signin" onClick={() => setIsMenuOpen(false)}>Iniciar Sesión</MobileLink>
                   <Link

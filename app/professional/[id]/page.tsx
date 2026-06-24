@@ -2,6 +2,7 @@ import { apiFetch } from "@/lib/api";
 import { Professional, Review } from "@/types";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import ProfessionalActions from "@/components/ProfessionalActions";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -109,14 +110,7 @@ export default async function ProfessionalDetailPage({ params }: PageProps) {
                 )}
               </div>
 
-              <div className="flex gap-3">
-                <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                  Contactar
-                </button>
-                <button className="border border-zinc-300 dark:border-zinc-700 px-6 py-3 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
-                  Guardar
-                </button>
-              </div>
+              <ProfessionalActions name={professional!.name} />
             </div>
           </div>
         </div>

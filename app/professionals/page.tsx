@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import ProfessionalCard from "@/components/ProfessionalCard";
 import SearchBar from "@/components/SearchBar";
@@ -8,7 +8,7 @@ import { apiFetch, getServices } from "@/lib/api";
 import { Professional, Service } from "@/types";
 import Link from "next/link";
 
-export default function ProfessionalsPage() {
+function ProfessionalsContent() {
   const searchParams = useSearchParams();
   const [all, setAll] = useState<Professional[]>([]);
   const [services, setServices] = useState<Service[]>([]);
@@ -122,12 +122,8 @@ export default function ProfessionalsPage() {
             <h3 className="text-xl font-semibold mb-2 text-zinc-900 dark:text-white">
               No se pudo conectar al servidor
             </h3>
-            <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-2">{error}</p>
-            <p className="text-zinc-400 dark:text-zinc-500 text-sm">
-              Verificá que el backend esté corriendo en{" "}
-              <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">
-                {process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"}
-              </code>
+            <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-2">
+              Estamos teniendo problemas para conectar con el servidor. Intentá de nuevo en unos minutos.
             </p>
           </div>
         ) : filtered.length > 0 ? (
@@ -157,5 +153,25 @@ export default function ProfessionalsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ProfessionalsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-20">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-64 bg-zinc-100 dark:bg-zinc-800 rounded-2xl animate-pulse" />
+              ))}
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <ProfessionalsContent />
+    </Suspense>
   );
 }
