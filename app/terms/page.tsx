@@ -69,7 +69,7 @@ export default function TermsPage() {
             <h2 className="text-xl font-semibold text-zinc-900 dark:text-white mb-3">7. Contacto</h2>
             <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
               Para consultas sobre estos términos, podés contactarnos a través de nuestra{" "}
-              <Link href="/contact" className="text-blue-600 hover:underline">página de contacto</Link>.
+              <Link href="/contact" className="text-orange-500 hover:underline">página de contacto</Link>.
             </p>
           </section>
         </div>

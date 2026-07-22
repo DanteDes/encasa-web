@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import FavoriteButton from "@/components/FavoriteButton";
 
-export default function ProfessionalActions({ name }: { name: string }) {
-  const [saved, setSaved] = useState(false);
+export default function ProfessionalActions({ id, name }: { id: number; name: string }) {
   const [showContact, setShowContact] = useState(false);
 
   const waMessage = encodeURIComponent(`Hola, quiero contactar al profesional ${name} a través de EnCasa.`);
@@ -17,16 +17,7 @@ export default function ProfessionalActions({ name }: { name: string }) {
         >
           Contactar
         </button>
-        <button
-          onClick={() => setSaved(!saved)}
-          className={`border px-6 py-3 rounded-lg transition-colors font-medium ${
-            saved
-              ? "border-orange-500 text-orange-500 bg-orange-50 dark:bg-orange-950/20"
-              : "border-zinc-300 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
-          }`}
-        >
-          {saved ? "Guardado ✓" : "Guardar"}
-        </button>
+        <FavoriteButton id={id} />
       </div>
 
       {showContact && (
@@ -42,8 +33,8 @@ export default function ProfessionalActions({ name }: { name: string }) {
               Contactar a {name}
             </h3>
             <p className="text-zinc-600 dark:text-zinc-400 mb-6">
-              El sistema de mensajes está en desarrollo. Por ahora podés contactarnos
-              por WhatsApp y te conectamos con el profesional.
+              Escribinos por WhatsApp y te conectamos con {name} directamente.
+              Respondemos en menos de 2 horas.
             </p>
             <div className="flex gap-3">
               <a

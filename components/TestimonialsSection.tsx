@@ -1,59 +1,32 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { apiFetch } from "@/lib/api";
-import { Review } from "@/types";
-
-function formatDate(iso: string) {
-  const diff = Date.now() - new Date(iso).getTime();
-  const days = Math.floor(diff / 86400000);
-  if (days === 0) return "Hoy";
-  if (days === 1) return "Hace 1 día";
-  if (days < 30) return `Hace ${Math.floor(days / 7) || 1} semana${days >= 14 ? "s" : ""}`;
-  if (days < 60) return "Hace 1 mes";
-  return `Hace ${Math.floor(days / 30)} meses`;
-}
+import { testimonials as mockTestimonials } from "@/data/testimonials";
+import type { Testimonial } from "@/data/testimonials";
 
 export default function TestimonialsSection() {
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [items, setItems] = useState<Testimonial[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiFetch<Review[]>("/reviews")
-      .then(setReviews)
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    // Future: fetch curated testimonials from API, fall back to static
+    setItems(mockTestimonials);
   }, []);
 
   useEffect(() => {
-    if (reviews.length < 2) return;
+    if (items.length < 2) return;
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % reviews.length);
+      setCurrentIndex((prev) => (prev + 1) % items.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, [reviews.length]);
+  }, [items.length]);
 
-  if (loading) {
-    return (
-      <section className="py-16 md:py-20 bg-zinc-50 dark:bg-zinc-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-48 bg-zinc-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  if (reviews.length === 0) return null;
+  if (items.length === 0) return null;
 
   const visible = [
-    reviews[currentIndex % reviews.length],
-    reviews[(currentIndex + 1) % reviews.length],
-    reviews[(currentIndex + 2) % reviews.length],
+    items[currentIndex % items.length],
+    items[(currentIndex + 1) % items.length],
+    items[(currentIndex + 2) % items.length],
   ].filter(Boolean);
 
   return (
@@ -78,48 +51,56 @@ export default function TestimonialsSection() {
 
         {/* Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {visible.map((review, index) => (
+          {visible.map((item, index) => (
             <div
-              key={review.id}
-              className="bg-white dark:bg-zinc-950 rounded-2xl p-6 border-2 border-zinc-200 dark:border-zinc-800 hover:border-orange-500 dark:hover:border-orange-500 transition-all duration-300 hover:shadow-xl"
+              key={item.id}
+              className="bg-white dark:bg-zinc-950 rounded-2xl p-6 border-2 border-zinc-200 dark:border-zinc-800 hover:border-orange-500 dark:hover:border-orange-500 transition-all duration-300 hover:shadow-xl flex flex-col"
               style={{ animation: `fadeIn 0.5s ease-in ${index * 0.1}s` }}
             >
-              {/* Stars */}
-              <div className="flex items-center gap-1 mb-3">
-                {[...Array(review.rating)].map((_, i) => (
-                  <span key={i} className="text-yellow-500 text-lg">★</span>
-                ))}
+              {/* Stars + Servicio */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-0.5">
+                  {[...Array(item.rating)].map((_, i) => (
+                    <span key={i} className="text-yellow-500 text-lg">★</span>
+                  ))}
+                </div>
+                <span className="text-xs font-medium bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 px-2.5 py-1 rounded-full">
+                  {item.service}
+                </span>
               </div>
 
               {/* Comment */}
-              <p className="text-zinc-700 dark:text-zinc-300 mb-4 text-sm leading-relaxed">
-                "{review.comment ?? "Excelente servicio."}"
+              <p className="text-zinc-700 dark:text-zinc-300 mb-4 text-sm leading-relaxed flex-1">
+                &ldquo;{item.comment}&rdquo;
               </p>
 
               {/* Author */}
-              <div className="flex items-center justify-between pt-4 border-t border-zinc-200 dark:border-zinc-800">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-orange-600 dark:text-orange-400 text-sm font-bold">
-                    C
+              <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                    {item.name[0]}
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-zinc-900 dark:text-white">
-                      Cliente verificado
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate">
+                      {item.name}
                     </p>
-                    <p className="text-xs text-zinc-500">
-                      {formatDate(review.createdAt)}
+                    <p className="text-xs text-zinc-500 truncate">
+                      {item.location} · {item.date}
                     </p>
                   </div>
                 </div>
+                <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-2">
+                  Trabajó con <span className="font-medium text-zinc-600 dark:text-zinc-400">{item.professionalName}</span>
+                </p>
               </div>
             </div>
           ))}
         </div>
 
         {/* Indicators */}
-        {reviews.length > 1 && (
+        {items.length > 1 && (
           <div className="flex justify-center gap-2">
-            {reviews.map((_, index) => (
+            {items.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}

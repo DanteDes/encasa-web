@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Professional } from "@/types";
+import FavoriteButton from "@/components/FavoriteButton";
 
 interface ProfessionalCardProps {
   professional: Professional;
@@ -138,24 +139,7 @@ export default function ProfessionalCard({
           >
             Ver Perfil
           </Link>
-          <button
-            className="px-4 py-3 border-2 border-orange-500 text-orange-500 dark:text-orange-400 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-950/20 transition-colors font-medium"
-            title="Guardar en favoritos"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              />
-            </svg>
-          </button>
+          <FavoriteButton id={professional.id} />
         </div>
 
         {/* Badge de respuesta rápida */}

@@ -48,7 +48,7 @@ export default function BlogSection() {
           </div>
           <Link
             href="/blog"
-            className="hidden md:inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-orange-600 transition-colors"
+            className="hidden md:inline-flex items-center gap-1 text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors"
           >
             Ver todos los artículos
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,7 +77,7 @@ export default function BlogSection() {
                   <span className="text-xs text-zinc-400">{post.readTime} lectura</span>
                 </div>
 
-                <h3 className="font-bold text-zinc-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-snug">
+                <h3 className="font-bold text-zinc-900 dark:text-white mb-2 group-hover:text-orange-500 dark:group-hover:text-orange-400 transition-colors leading-snug">
                   {post.title}
                 </h3>
 
@@ -99,7 +99,7 @@ export default function BlogSection() {
         <div className="mt-8 text-center md:hidden">
           <Link
             href="/blog"
-            className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-orange-600"
+            className="inline-flex items-center gap-1 text-sm font-medium text-orange-500 hover:text-orange-600"
           >
             Ver todos los artículos →
           </Link>

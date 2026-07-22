@@ -1,5 +1,7 @@
 import { servicesMeta } from "./servicesMeta";
 import type { Service, Professional, Review } from "@/types";
+import { services as mockServices } from "@/data/services";
+import { professionals as mockProfessionals } from "@/data/professionals";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
@@ -26,7 +28,7 @@ export async function apiFetch<T>(
   return res.json() as Promise<T>;
 }
 
-// ── Safe server-side fetchers (never throw — return [] on failure) ──
+// ── Safe server-side fetchers (fall back to mock data when backend is unavailable) ──
 
 export async function getServices(): Promise<Service[]> {
   try {
@@ -39,7 +41,7 @@ export async function getServices(): Promise<Service[]> {
       color: servicesMeta[s.id]?.color ?? "bg-zinc-500",
     }));
   } catch {
-    return [];
+    return mockServices;
   }
 }
 
@@ -50,7 +52,20 @@ export async function getProfessionals(
     const query = params ? "?" + new URLSearchParams(params).toString() : "";
     return await apiFetch<Professional[]>(`/professionals${query}`);
   } catch {
-    return [];
+    let result = mockProfessionals;
+    if (params?.serviceId) {
+      result = result.filter((p) => p.serviceId === params.serviceId);
+    }
+    if (params?.q) {
+      const q = params.q.toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.service.toLowerCase().includes(q) ||
+          (p.location ?? "").toLowerCase().includes(q)
+      );
+    }
+    return result;
   }
 }
 

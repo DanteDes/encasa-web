@@ -25,7 +25,7 @@ export default function Logo({
         fontSize="26"
         fontWeight="600"
         fill="currentColor"
-        fontFamily="Poppins, Nunito, Inter, system-ui, sans-serif"
+        fontFamily="var(--font-geist-sans), Inter, system-ui, sans-serif"
       >
         En
       </text>
@@ -37,7 +37,7 @@ export default function Logo({
         fontSize="26"
         fontWeight="800"
         fill="#FF6A3D"
-        fontFamily="Poppins, Nunito, Inter, system-ui, sans-serif"
+        fontFamily="var(--font-geist-sans), Inter, system-ui, sans-serif"
       >
         Casa
       </text>

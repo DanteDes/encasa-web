@@ -28,8 +28,9 @@ export default async function ServicesPage() {
 
         {services.length === 0 ? (
           <div className="text-center py-16 text-zinc-500 dark:text-zinc-400">
-            <p className="text-lg">No se pudieron cargar los servicios.</p>
-            <p className="text-sm mt-2">Verificá que el backend esté disponible.</p>
+            <div className="text-5xl mb-4">🔧</div>
+            <p className="text-lg font-medium text-zinc-900 dark:text-white mb-2">Estamos trabajando en esto</p>
+            <p className="text-sm">Volvé en unos minutos o escribinos por WhatsApp y te ayudamos.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">

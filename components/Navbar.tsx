@@ -25,27 +25,33 @@ export default function Navbar() {
 
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-6">
-            {/* Logged-in nav */}
-            {session?.user && (
-              isProfessional ? (
-                <>
-                  <Link href="/dashboard" className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors text-sm font-semibold">
-                    Dashboard
-                  </Link>
-                  <Link href="/profile" className="border border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-200 px-4 py-2 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors text-sm font-semibold">
-                    Mi Perfil
-                  </Link>
-                  <span className="w-px h-5 bg-zinc-200 dark:bg-zinc-700" />
-                  <Link href="/services" className={navLink}>Servicios</Link>
-                  <Link href="/professionals" className={navLink}>Profesionales</Link>
-                </>
-              ) : (
-                <>
-                  <Link href="/services" className={navLink}>Servicios</Link>
-                  <Link href="/professionals" className={navLink}>Profesionales</Link>
-                </>
-              )
+            {/* Public nav */}
+            <Link href="/services" className={navLink}>Servicios</Link>
+            <Link href="/professionals" className={navLink}>Profesionales</Link>
+
+            {/* Logged-in extras */}
+            {session?.user && isProfessional && (
+              <>
+                <span className="w-px h-5 bg-zinc-200 dark:bg-zinc-700" />
+                <Link href="/dashboard" className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors text-sm font-semibold">
+                  Dashboard
+                </Link>
+                <Link href="/profile" className="border border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-200 px-4 py-2 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors text-sm font-semibold">
+                  Mi Perfil
+                </Link>
+              </>
             )}
+
+            {/* Favorites icon — visible para todos */}
+            <Link
+              href="/favorites"
+              className="text-zinc-500 dark:text-zinc-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors"
+              title="Mis favoritos"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </Link>
 
             {/* User avatar + dropdown */}
             {session?.user ? (
@@ -135,22 +141,19 @@ export default function Navbar() {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-zinc-200 dark:border-zinc-800">
             <div className="flex flex-col gap-1">
+              <MobileLink href="/services" onClick={() => setIsMenuOpen(false)}>Servicios</MobileLink>
+              <MobileLink href="/professionals" onClick={() => setIsMenuOpen(false)}>Profesionales</MobileLink>
+              <MobileLink href="/favorites" onClick={() => setIsMenuOpen(false)}>Mis favoritos</MobileLink>
+
               {session?.user && isProfessional && (
                 <>
+                  <hr className="border-zinc-200 dark:border-zinc-700" />
                   <Link href="/dashboard" onClick={() => setIsMenuOpen(false)} className="bg-orange-500 text-white px-4 py-3 rounded-lg text-sm font-semibold text-center hover:bg-orange-600 transition-colors">
                     Dashboard
                   </Link>
                   <Link href="/profile" onClick={() => setIsMenuOpen(false)} className="border border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-200 px-4 py-3 rounded-lg text-sm font-semibold text-center hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
                     Mi Perfil
                   </Link>
-                  <hr className="border-zinc-200 dark:border-zinc-700" />
-                </>
-              )}
-
-              {session?.user && (
-                <>
-                  <MobileLink href="/services" onClick={() => setIsMenuOpen(false)}>Servicios</MobileLink>
-                  <MobileLink href="/professionals" onClick={() => setIsMenuOpen(false)}>Profesionales</MobileLink>
                 </>
               )}
 

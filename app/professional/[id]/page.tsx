@@ -1,11 +1,35 @@
+import type { Metadata } from "next";
 import { apiFetch } from "@/lib/api";
-import { Professional, Review } from "@/types";
+import { professionals as mockProfessionals } from "@/data/professionals";
+import type { Professional, Review } from "@/types";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProfessionalActions from "@/components/ProfessionalActions";
 
 interface PageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateStaticParams() {
+  return mockProfessionals.map((p) => ({ id: String(p.id) }));
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params;
+  const mock = mockProfessionals.find((p) => p.id === Number(id));
+  let professional: Professional | undefined = mock;
+  try {
+    professional = await apiFetch<Professional>(`/professionals/${id}`);
+  } catch {}
+  if (!professional) return {};
+  return {
+    title: `${professional.name} — ${professional.service} en Mar del Plata | EnCasa`,
+    description: `${professional.name}: ${professional.service} en Mar del Plata. ${professional.experience ? `${professional.experience} años de experiencia.` : ""} ${professional.description?.slice(0, 120) ?? ""}`,
+    openGraph: {
+      title: `${professional.name} — ${professional.service} | EnCasa`,
+      description: professional.description ?? `Profesional de ${professional.service} en Mar del Plata.`,
+    },
+  };
 }
 
 function formatDate(iso: string) {
@@ -28,9 +52,16 @@ export default async function ProfessionalDetailPage({ params }: PageProps) {
 
   try {
     professional = await apiFetch<Professional>(`/professionals/${id}`);
+  } catch {
+    const mock = mockProfessionals.find((p) => p.id === Number(id));
+    if (!mock) notFound();
+    professional = mock;
+  }
+
+  try {
     reviews = await apiFetch<Review[]>(`/reviews/professional/${id}`);
   } catch {
-    notFound();
+    reviews = [];
   }
 
   return (
@@ -110,7 +141,7 @@ export default async function ProfessionalDetailPage({ params }: PageProps) {
                 )}
               </div>
 
-              <ProfessionalActions name={professional!.name} />
+              <ProfessionalActions id={professional!.id} name={professional!.name} />
             </div>
           </div>
         </div>

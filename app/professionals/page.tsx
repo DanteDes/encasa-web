@@ -4,9 +4,10 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import ProfessionalCard from "@/components/ProfessionalCard";
 import SearchBar from "@/components/SearchBar";
-import { apiFetch, getServices } from "@/lib/api";
-import { Professional, Service } from "@/types";
+import { getProfessionals, getServices } from "@/lib/api";
+import type { Professional, Service } from "@/types";
 import Link from "next/link";
+import ProfessionalCardSkeleton from "@/components/ProfessionalCardSkeleton";
 
 function ProfessionalsContent() {
   const searchParams = useSearchParams();
@@ -18,10 +19,7 @@ function ProfessionalsContent() {
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") ?? "");
 
   useEffect(() => {
-    Promise.all([
-      apiFetch<Professional[]>("/professionals"),
-      getServices(),
-    ])
+    Promise.all([getProfessionals(), getServices()])
       .then(([profs, svcs]) => {
         setAll(profs);
         setServices(svcs);
@@ -113,7 +111,7 @@ function ProfessionalsContent() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-64 bg-zinc-100 dark:bg-zinc-800 rounded-2xl animate-pulse" />
+              <ProfessionalCardSkeleton key={i} />
             ))}
           </div>
         ) : error ? (
@@ -164,7 +162,7 @@ export default function ProfessionalsPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-20">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-64 bg-zinc-100 dark:bg-zinc-800 rounded-2xl animate-pulse" />
+                <ProfessionalCardSkeleton key={i} />
               ))}
             </div>
           </div>

@@ -1,182 +1,144 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Cómo funciona — EnCasa",
+  description: "Encontrá el profesional perfecto en 3 pasos. Buscá, comparálos y contactálo directo.",
+};
+
+const steps = [
+  {
+    n: "1",
+    title: "Buscá el servicio que necesitás",
+    body: "Navegá por las categorías o usá el buscador para encontrar exactamente lo que precisás: carpinteros, electricistas, plomeros, pintores y más.",
+    tip: "Podés filtrar por zona para encontrar profesionales cerca tuyo.",
+  },
+  {
+    n: "2",
+    title: "Compará perfiles y precios",
+    body: "Revisá calificaciones, reseñas, años de experiencia y tarifas. Todos los profesionales están verificados antes de aparecer en la plataforma.",
+    tip: "Las reseñas son solo de clientes que ya contrataron — ninguna es inventada.",
+  },
+  {
+    n: "3",
+    title: "Contactálo directo",
+    body: "Sin intermediarios ni comisiones. Coordinás los detalles, pedís presupuesto y acordás la fecha directamente con el profesional.",
+    tip: "Describí tu proyecto con detalle para recibir un presupuesto más preciso.",
+  },
+  {
+    n: "4",
+    title: "Calificá tu experiencia",
+    body: "Una vez terminado el trabajo, dejá tu reseña. Tu opinión ayuda a otros vecinos a elegir mejor y reconoce el trabajo de los buenos profesionales.",
+    tip: "Las reseñas honestas y detalladas son las más útiles para la comunidad.",
+  },
+];
+
+const faqs = [
+  {
+    q: "¿Los profesionales están verificados?",
+    a: "Sí. Todos pasan por un proceso de verificación de identidad y credenciales antes de publicar su perfil.",
+  },
+  {
+    q: "¿Cuánto cuesta usar EnCasa?",
+    a: "Buscar y contactar profesionales es completamente gratis. Pagás solo por el trabajo, directo al profesional, sin comisiones.",
+  },
+  {
+    q: "¿Qué pasa si no quedé conforme con el trabajo?",
+    a: "Te recomendamos hablarlo primero con el profesional. Si el problema no se resuelve, nuestro equipo está disponible para acompañarte.",
+  },
+];
 
 export default function HowItWorksPage() {
   return (
-    <div className="min-h-screen py-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-12">
-          <nav className="text-sm text-zinc-500 mb-4">
-            <Link
-              href="/"
-              className="hover:text-zinc-900 dark:hover:text-white"
-            >
-              Inicio
-            </Link>
-            <span className="mx-2">/</span>
-            <span className="text-zinc-900 dark:text-white">Cómo Funciona</span>
+    <div className="min-h-screen">
+
+      {/* Hero */}
+      <section className="bg-zinc-950 text-white py-16 md:py-24">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <nav className="text-sm text-zinc-500 mb-6 flex justify-center gap-2">
+            <Link href="/" className="hover:text-zinc-300 transition-colors">Inicio</Link>
+            <span>/</span>
+            <span className="text-zinc-300">Cómo funciona</span>
           </nav>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-zinc-900 dark:text-white">
-            ¿Cómo funciona EnCasa?
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            Así de fácil encontrás
+            <br />
+            <span className="text-orange-400">tu profesional</span>
           </h1>
-          <p className="text-lg text-zinc-600 dark:text-zinc-400">
-            Encontrar el profesional perfecto para tu hogar nunca fue tan fácil
+          <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
+            En EnCasa te conectamos con profesionales verificados de Mar del Plata en minutos, sin vueltas y sin intermediarios.
           </p>
         </div>
+      </section>
 
-        {/* Steps */}
-        <div className="space-y-12 mb-16">
-          <div className="flex gap-6">
-            <div className="flex-shrink-0">
-              <div className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold">
-                1
+      {/* Steps */}
+      <section className="py-16 md:py-20 bg-white dark:bg-zinc-950">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="space-y-10">
+            {steps.map((step, i) => (
+              <div key={step.n} className="flex gap-6 md:gap-8">
+                <div className="flex-shrink-0">
+                  <div className="w-14 h-14 bg-orange-500 text-white rounded-2xl flex items-center justify-center text-2xl font-bold shadow-lg shadow-orange-500/20">
+                    {step.n}
+                  </div>
+                  {i < steps.length - 1 && (
+                    <div className="w-0.5 h-10 bg-orange-200 dark:bg-orange-900/40 mx-auto mt-2" />
+                  )}
+                </div>
+                <div className="pb-2">
+                  <h2 className="text-xl md:text-2xl font-bold mb-2 text-zinc-900 dark:text-white">
+                    {step.title}
+                  </h2>
+                  <p className="text-zinc-600 dark:text-zinc-400 mb-3 leading-relaxed">
+                    {step.body}
+                  </p>
+                  <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 rounded-xl px-4 py-3">
+                    <p className="text-sm text-orange-800 dark:text-orange-300">
+                      <span className="font-semibold">Tip:</span> {step.tip}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold mb-3 text-zinc-900 dark:text-white">
-                Buscá el servicio que necesitás
-              </h2>
-              <p className="text-zinc-600 dark:text-zinc-400 mb-4">
-                Navegá por nuestras categorías de servicios o utilizá el
-                buscador para encontrar exactamente lo que necesitás:
-                carpinteros, electricistas, plomeros, pintores y más.
-              </p>
-              <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-4">
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  💡 <strong>Tip:</strong> Podés filtrar por ubicación para
-                  encontrar profesionales cerca tuyo
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-6">
-            <div className="flex-shrink-0">
-              <div className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold">
-                2
-              </div>
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold mb-3 text-zinc-900 dark:text-white">
-                Compará perfiles y precios
-              </h2>
-              <p className="text-zinc-600 dark:text-zinc-400 mb-4">
-                Revisá los perfiles de los profesionales, sus calificaciones,
-                reseñas de otros usuarios, años de experiencia y tarifas. Todos
-                nuestros profesionales están verificados.
-              </p>
-              <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-4">
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  ⭐ <strong>Tip:</strong> Prestá atención a las reseñas para
-                  conocer la experiencia de otros usuarios
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-6">
-            <div className="flex-shrink-0">
-              <div className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold">
-                3
-              </div>
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold mb-3 text-zinc-900 dark:text-white">
-                Contactá al profesional
-              </h2>
-              <p className="text-zinc-600 dark:text-zinc-400 mb-4">
-                Una vez que hayas elegido tu favorito, contactalo directamente a
-                través de la plataforma. Coordiná los detalles del trabajo, pedí
-                un presupuesto y acordá la fecha.
-              </p>
-              <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-4">
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  📞 <strong>Tip:</strong> Describí tu proyecto con detalle para
-                  recibir un presupuesto más preciso
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-6">
-            <div className="flex-shrink-0">
-              <div className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold">
-                4
-              </div>
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold mb-3 text-zinc-900 dark:text-white">
-                Calificá tu experiencia
-              </h2>
-              <p className="text-zinc-600 dark:text-zinc-400 mb-4">
-                Una vez finalizado el trabajo, calificá al profesional y dejá
-                una reseña. Tu opinión ayuda a otros usuarios a tomar mejores
-                decisiones.
-              </p>
-              <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-4">
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  ✨ <strong>Tip:</strong> Las reseñas honestas y detalladas son
-                  las más útiles para la comunidad
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
+      </section>
 
-        {/* FAQ Section */}
-        <div className="border-t border-zinc-200 dark:border-zinc-800 pt-12">
-          <h2 className="text-3xl font-bold mb-8 text-zinc-900 dark:text-white">
-            Preguntas Frecuentes
+      {/* FAQ */}
+      <section className="py-16 bg-zinc-50 dark:bg-zinc-900 border-y border-zinc-200 dark:border-zinc-800">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold mb-10 text-zinc-900 dark:text-white text-center">
+            Preguntas frecuentes
           </h2>
-
           <div className="space-y-6">
-            <div>
-              <h3 className="text-xl font-semibold mb-2 text-zinc-900 dark:text-white">
-                ¿Los profesionales están verificados?
-              </h3>
-              <p className="text-zinc-600 dark:text-zinc-400">
-                Sí, todos los profesionales pasan por un proceso de verificación
-                de identidad y credenciales.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-xl font-semibold mb-2 text-zinc-900 dark:text-white">
-                ¿Cuánto cuesta usar EnCasa?
-              </h3>
-              <p className="text-zinc-600 dark:text-zinc-400">
-                Buscar y contactar profesionales es completamente gratis. Solo
-                pagás por el trabajo realizado directamente al profesional.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-xl font-semibold mb-2 text-zinc-900 dark:text-white">
-                ¿Qué pasa si no estoy satisfecho con el trabajo?
-              </h3>
-              <p className="text-zinc-600 dark:text-zinc-400">
-                Te recomendamos comunicarte directamente con el profesional para
-                resolver cualquier inconveniente. Si el problema persiste,
-                nuestro equipo de soporte está disponible para ayudarte.
-              </p>
-            </div>
+            {faqs.map(({ q, a }) => (
+              <div key={q} className="bg-white dark:bg-zinc-950 rounded-2xl p-6 border border-zinc-200 dark:border-zinc-800">
+                <h3 className="text-lg font-semibold mb-2 text-zinc-900 dark:text-white">{q}</h3>
+                <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">{a}</p>
+              </div>
+            ))}
           </div>
         </div>
+      </section>
 
-        {/* CTA */}
-        <div className="mt-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl p-8 text-center">
-          <h2 className="text-2xl font-bold mb-4">¿Listo para empezar?</h2>
-          <p className="text-blue-100 mb-6">
-            Encontrá el profesional perfecto para tu próximo proyecto
+      {/* CTA */}
+      <section className="py-16 bg-white dark:bg-zinc-950">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold mb-3 text-zinc-900 dark:text-white">
+            ¿Listo para empezar?
+          </h2>
+          <p className="text-zinc-500 dark:text-zinc-400 mb-8">
+            Más de 120 profesionales verificados esperando tu consulta.
           </p>
           <Link
             href="/professionals"
-            className="inline-block bg-white text-blue-600 px-6 py-3 rounded-lg hover:bg-zinc-100 transition-colors font-medium"
+            className="inline-block bg-orange-500 text-white px-8 py-4 rounded-xl hover:bg-orange-600 transition-colors font-semibold text-lg shadow-lg shadow-orange-500/20"
           >
-            Ver Profesionales
+            Ver profesionales disponibles →
           </Link>
         </div>
-      </div>
+      </section>
+
     </div>
   );
 }
