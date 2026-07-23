@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import ProfessionalCard from "@/components/ProfessionalCard";
 import { professionals as mockProfessionals } from "@/data/professionals";
+import { FAVORITES_EVENT } from "@/components/FavoriteButton";
 import type { Professional } from "@/types";
 
 const STORAGE_KEY = "encasa_favorites";
@@ -21,16 +22,19 @@ export default function FavoritesPage() {
   const [favorites, setFavorites] = useState<Professional[]>([]);
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    const ids = getSavedIds();
-    setFavorites(mockProfessionals.filter((p) => ids.includes(p.id)));
-    setMounted(true);
-  }, []);
-
-  // Re-sync cuando el usuario quita un favorito desde esta página
-  function handleRemove(id: number) {
-    setFavorites((prev) => prev.filter((p) => p.id !== id));
+  function syncFromStorage(ids?: number[]) {
+    const savedIds = ids ?? getSavedIds();
+    setFavorites(mockProfessionals.filter((p) => savedIds.includes(p.id)));
   }
+
+  useEffect(() => {
+    syncFromStorage();
+    setMounted(true);
+
+    const handler = (e: Event) => syncFromStorage((e as CustomEvent<number[]>).detail);
+    window.addEventListener(FAVORITES_EVENT, handler);
+    return () => window.removeEventListener(FAVORITES_EVENT, handler);
+  }, []);
 
   if (!mounted) return null;
 

@@ -15,18 +15,19 @@ function getFavorites(): number[] {
   }
 }
 
+export const FAVORITES_EVENT = "encasa:favorites-updated";
+
 function toggleFavorite(id: number): boolean {
   const favs = getFavorites();
   const idx = favs.indexOf(id);
   if (idx === -1) {
     favs.push(id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(favs));
-    return true;
   } else {
     favs.splice(idx, 1);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(favs));
-    return false;
   }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(favs));
+  window.dispatchEvent(new CustomEvent(FAVORITES_EVENT, { detail: favs }));
+  return idx === -1;
 }
 
 export default function FavoriteButton({ id }: { id: number }) {
