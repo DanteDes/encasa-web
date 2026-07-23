@@ -4,18 +4,9 @@ import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTheme } from "@/components/ThemeProvider";
 
 type Theme = "light" | "dark";
-
-function getStoredTheme(): Theme {
-  if (typeof window === "undefined") return "dark";
-  return localStorage.getItem("encasa_theme") === "light" ? "light" : "dark";
-}
-
-function applyTheme(theme: Theme) {
-  document.documentElement.classList.toggle("dark", theme === "dark");
-  localStorage.setItem("encasa_theme", theme);
-}
 
 function getStoredNotifications(): boolean {
   if (typeof window === "undefined") return true;
@@ -26,7 +17,7 @@ export default function SettingsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const [theme, setTheme] = useState<Theme>("dark");
+  const { theme, setTheme } = useTheme();
   const [notifications, setNotifications] = useState(true);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -36,13 +27,11 @@ export default function SettingsPage() {
   }, [status, router]);
 
   useEffect(() => {
-    setTheme(getStoredTheme());
     setNotifications(getStoredNotifications());
   }, []);
 
   function handleThemeChange(newTheme: Theme) {
     setTheme(newTheme);
-    applyTheme(newTheme);
   }
 
   function handleNotificationsToggle() {
