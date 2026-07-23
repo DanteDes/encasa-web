@@ -6,6 +6,35 @@ import { useSession, signOut } from "next-auth/react";
 import Logo from "./Logo";
 import { getStoredAvatar, onAvatarUpdated } from "@/lib/avatar";
 
+type AvailStatus = "disponible" | "ocupado" | "no-disponible";
+const STATUS_DOT: Record<AvailStatus, string> = {
+  "disponible": "bg-green-500",
+  "ocupado": "bg-orange-500",
+  "no-disponible": "bg-red-500",
+};
+const STATUS_LABEL: Record<AvailStatus, string> = {
+  "disponible": "Disponible",
+  "ocupado": "Ocupado",
+  "no-disponible": "No disponible",
+};
+
+function readAvailability(): AvailStatus {
+  try {
+    const raw = localStorage.getItem("encasa_prof_profile");
+    if (raw) return (JSON.parse(raw).availability as AvailStatus) ?? "disponible";
+  } catch {}
+  return "disponible";
+}
+
+function writeAvailability(s: AvailStatus) {
+  try {
+    const raw = localStorage.getItem("encasa_prof_profile");
+    const p = raw ? JSON.parse(raw) : {};
+    p.availability = s;
+    localStorage.setItem("encasa_prof_profile", JSON.stringify(p));
+  } catch {}
+}
+
 const navLink = "text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors text-sm font-medium";
 
 export default function Navbar() {
@@ -16,11 +45,13 @@ export default function Navbar() {
   const isProfessional = session?.user?.role === "professional";
   const isLoggedIn = !!session?.user;
   const [customAvatar, setCustomAvatar] = useState<string | null>(null);
+  const [availability, setAvailability] = useState<AvailStatus>("disponible");
 
   useEffect(() => {
     setCustomAvatar(getStoredAvatar());
+    if (isProfessional) setAvailability(readAvailability());
     return onAvatarUpdated(setCustomAvatar);
-  }, []);
+  }, [isProfessional]);
 
   return (
     <nav className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 sticky top-0 z-50">
@@ -64,17 +95,22 @@ export default function Navbar() {
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                     className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                   >
-                    {customAvatar ?? session.user.image ? (
-                      <img
-                        src={customAvatar ?? session.user.image!}
-                        alt={session.user.name ?? "User"}
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-sm font-bold text-zinc-600 dark:text-zinc-300">
-                        {session.user.name?.[0] ?? "U"}
-                      </div>
-                    )}
+                    <div className="relative">
+                      {customAvatar ?? session.user.image ? (
+                        <img
+                          src={customAvatar ?? session.user.image!}
+                          alt={session.user.name ?? "User"}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-sm font-bold text-zinc-600 dark:text-zinc-300">
+                          {session.user.name?.[0] ?? "U"}
+                        </div>
+                      )}
+                      {isProfessional && (
+                        <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-zinc-900 ${STATUS_DOT[availability]}`} />
+                      )}
+                    </div>
                     <svg className="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
@@ -89,12 +125,36 @@ export default function Navbar() {
                           <p className="text-xs text-zinc-500 truncate">{session.user.email}</p>
                           <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium ${
                             isProfessional
-                              ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300"
+                              ? "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300"
                               : "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
                           }`}>
                             {isProfessional ? "Profesional" : "Cliente"}
                           </span>
                         </div>
+                        {/* Availability picker for professionals */}
+                        {isProfessional && (
+                          <div className="px-2 py-1 border-b border-zinc-100 dark:border-zinc-800 mb-1">
+                            {(["disponible", "ocupado", "no-disponible"] as AvailStatus[]).map((s) => (
+                              <button
+                                key={s}
+                                onClick={() => { setAvailability(s); writeAvailability(s); }}
+                                className={`w-full flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-sm transition-colors ${
+                                  availability === s
+                                    ? "bg-zinc-100 dark:bg-zinc-800"
+                                    : "hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                                }`}
+                              >
+                                <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${STATUS_DOT[s]}`} />
+                                <span className="text-zinc-700 dark:text-zinc-300">{STATUS_LABEL[s]}</span>
+                                {availability === s && (
+                                  <svg className="w-3.5 h-3.5 text-zinc-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                         <Link href="/settings" className="block px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => setIsUserMenuOpen(false)}>
                           Configuración
                         </Link>
