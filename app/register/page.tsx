@@ -1,6 +1,7 @@
 import { signIn } from "@/auth";
 import Link from "next/link";
 import Logo from "@/components/Logo";
+import RegisterEmailForm from "./RegisterEmailForm";
 
 const GoogleIcon = () => (
   <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -15,6 +16,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl w-full">
+
         <div className="text-center mb-10">
           <Link href="/" className="inline-block mb-6">
             <Logo className="text-zinc-900 dark:text-white mx-auto" width={180} height={40} />
@@ -28,6 +30,7 @@ export default function RegisterPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
           {/* Cliente */}
           <div className="bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 flex flex-col hover:border-green-500 dark:hover:border-green-500 transition-colors">
             <div className="text-5xl mb-4">🏠</div>
@@ -36,86 +39,103 @@ export default function RegisterPage() {
               Busco profesionales de confianza para mi hogar
             </p>
             <ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400 mb-8 flex-1">
-              <li className="flex items-center gap-2">
-                <span className="text-green-500 font-bold">✓</span>
-                Encontrá profesionales verificados
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-green-500 font-bold">✓</span>
-                Comparar precios y reseñas
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-green-500 font-bold">✓</span>
-                Solicitá presupuestos gratis
-              </li>
+              {["Encontrá profesionales verificados", "Comparar precios y reseñas", "Solicitá presupuestos gratis"].map((item) => (
+                <li key={item} className="flex items-center gap-2">
+                  <span className="text-green-500 font-bold">✓</span>
+                  {item}
+                </li>
+              ))}
             </ul>
-            <form
-              action={async () => {
-                "use server";
-                await signIn("google", { redirectTo: "/dashboard" });
-              }}
-            >
-              <button
-                type="submit"
-                className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors font-medium text-zinc-900 dark:text-white"
+
+            <div className="space-y-3">
+              <form
+                action={async () => {
+                  "use server";
+                  await signIn("google", { redirectTo: "/dashboard" });
+                }}
               >
-                <GoogleIcon />
-                Continuar con Google
-              </button>
-            </form>
+                <button
+                  type="submit"
+                  className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors font-medium text-zinc-900 dark:text-white text-sm"
+                >
+                  <GoogleIcon />
+                  Continuar con Google
+                </button>
+              </form>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-zinc-200 dark:border-zinc-700" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="px-2 bg-white dark:bg-zinc-900 text-zinc-400">o</span>
+                </div>
+              </div>
+
+              <RegisterEmailForm redirectTo="/dashboard" />
+            </div>
           </div>
 
           {/* Profesional */}
-          <div className="bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 flex flex-col hover:border-blue-500 dark:hover:border-blue-500 transition-colors">
+          <div className="bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 flex flex-col hover:border-orange-500 dark:hover:border-orange-500 transition-colors">
             <div className="text-5xl mb-4">🔧</div>
             <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Soy Profesional</h2>
             <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-5">
               Ofrezco mis servicios y quiero conseguir más clientes
             </p>
             <ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400 mb-8 flex-1">
-              <li className="flex items-center gap-2">
-                <span className="text-blue-500 font-bold">✓</span>
-                Recibí solicitudes de trabajo
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-blue-500 font-bold">✓</span>
-                Gestioná tu agenda y disponibilidad
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-blue-500 font-bold">✓</span>
-                Construí tu reputación con reseñas
-              </li>
+              {["Recibí solicitudes de trabajo", "Gestioná tu agenda y disponibilidad", "Construí tu reputación con reseñas"].map((item) => (
+                <li key={item} className="flex items-center gap-2">
+                  <span className="text-orange-500 font-bold">✓</span>
+                  {item}
+                </li>
+              ))}
             </ul>
-            <form
-              action={async () => {
-                "use server";
-                await signIn("google", { redirectTo: "/professional/setup" });
-              }}
-            >
-              <button
-                type="submit"
-                className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+
+            <div className="space-y-3">
+              <form
+                action={async () => {
+                  "use server";
+                  await signIn("google", { redirectTo: "/professional/setup" });
+                }}
               >
-                <GoogleIcon />
-                Continuar con Google
-              </button>
-            </form>
+                <button
+                  type="submit"
+                  className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors font-medium text-sm"
+                >
+                  <GoogleIcon />
+                  Continuar con Google
+                </button>
+              </form>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-zinc-200 dark:border-zinc-700" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="px-2 bg-white dark:bg-zinc-900 text-zinc-400">o</span>
+                </div>
+              </div>
+
+              <RegisterEmailForm redirectTo="/professional/setup" />
+            </div>
           </div>
         </div>
 
         <p className="text-center text-sm text-zinc-600 dark:text-zinc-400 mt-8">
           ¿Ya tenés cuenta?{" "}
-          <Link href="/auth/signin" className="font-medium text-blue-600 hover:text-blue-500">
+          <Link href="/auth/signin" className="font-medium text-orange-500 hover:text-orange-600">
             Iniciá sesión
           </Link>
         </p>
 
         <p className="text-center text-xs text-zinc-500 dark:text-zinc-400 mt-4">
           Al registrarte aceptás nuestros{" "}
-          <Link href="/terms" className="text-blue-600 hover:underline">Términos de Servicio</Link>
+          <Link href="/terms" className="text-orange-500 hover:underline">Términos de Servicio</Link>
           {" "}y{" "}
-          <Link href="/privacy" className="text-blue-600 hover:underline">Política de Privacidad</Link>
+          <Link href="/privacy" className="text-orange-500 hover:underline">Política de Privacidad</Link>
         </p>
+
       </div>
     </div>
   );

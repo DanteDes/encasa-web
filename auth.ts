@@ -31,17 +31,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // if (!res.ok) return null;
         // return res.json();
 
-        const DEMO_USERS = [
-          { id: "1", email: "demo@encasa.com", password: "demo1234", name: "Demo Usuario", role: "client" },
-          { id: "2", email: "admin@encasa.com", password: "admin1234", name: "Admin EnCasa", role: "professional" },
-        ];
+        // TODO: reemplazar por validación real contra la base de datos
+        // const res = await fetch(`${apiUrl}/auth/login`, { method: "POST", body: JSON.stringify({ email, password }) });
+        // if (!res.ok) return null;
+        // return res.json();
 
-        const user = DEMO_USERS.find(
-          (u) => u.email === email && u.password === password
-        );
-        if (!user) return null;
+        // Demo: acepta cualquier email con contraseña de al menos 6 caracteres
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email) || password.length < 6) return null;
 
-        return { id: user.id, email: user.email, name: user.name, role: user.role };
+        const name = email.split("@")[0].replace(/[._-]/g, " ");
+        return {
+          id: email,
+          email,
+          name: name.charAt(0).toUpperCase() + name.slice(1),
+        };
       },
     }),
   ],
