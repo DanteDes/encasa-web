@@ -11,6 +11,8 @@ export default function ProfessionalActions({ id, name }: { id: number; name: st
 
   const waMessage = encodeURIComponent(`Hola, quiero contactar al profesional ${name} a través de EnCasa.`);
 
+  if (isProfessional) return null;
+
   return (
     <>
       <div className="flex gap-3">
