@@ -13,9 +13,9 @@ const tips = [
   {
     icon: "⚡",
     title: "Respondé rápido",
-    desc: "Los clientes suelen elegir al primero que responde. El tiempo de respuesta es clave para conseguir el trabajo.",
-    href: "/solicitudes",
-    cta: "Ver solicitudes",
+    desc: "Los clientes suelen elegir al primero que responde. Cuando te contacten por WhatsApp, respondé lo antes que puedas.",
+    href: "/professional/setup",
+    cta: "Actualizar disponibilidad",
   },
   {
     icon: "⭐",
@@ -60,20 +60,6 @@ export default function ProfessionalHome({ session }: { session: Session }) {
               <p className="text-zinc-400">
                 Tu perfil está activo en EnCasa.
               </p>
-            </div>
-            <div className="flex gap-3">
-              <Link
-                href="/professional/setup"
-                className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-semibold text-sm transition-colors"
-              >
-                Editar perfil
-              </Link>
-              <Link
-                href="/professionals"
-                className="px-5 py-2.5 border border-zinc-700 hover:border-zinc-500 text-zinc-300 rounded-xl font-medium text-sm transition-colors"
-              >
-                Ver competencia
-              </Link>
             </div>
           </div>
         </div>
