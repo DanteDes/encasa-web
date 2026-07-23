@@ -207,7 +207,7 @@ export default async function Home() {
       <TestimonialsSection />
 
       {/* ── Blog ── */}
-      <BlogSection />
+      {session && <BlogSection />}
 
       {/* ── Main CTA ── */}
       <section className="relative bg-zinc-950 text-white py-16 md:py-24 overflow-hidden">
