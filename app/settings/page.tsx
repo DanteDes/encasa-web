@@ -5,17 +5,15 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-type Theme = "light" | "dark" | "system";
+type Theme = "light" | "dark";
 
 function getStoredTheme(): Theme {
-  if (typeof window === "undefined") return "system";
-  return (localStorage.getItem("encasa_theme") as Theme) ?? "system";
+  if (typeof window === "undefined") return "dark";
+  return localStorage.getItem("encasa_theme") === "light" ? "light" : "dark";
 }
 
 function applyTheme(theme: Theme) {
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const shouldBeDark = theme === "dark" || (theme === "system" && prefersDark);
-  document.documentElement.classList.toggle("dark", shouldBeDark);
+  document.documentElement.classList.toggle("dark", theme === "dark");
   localStorage.setItem("encasa_theme", theme);
 }
 
@@ -28,7 +26,7 @@ export default function SettingsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const [theme, setTheme] = useState<Theme>("system");
+  const [theme, setTheme] = useState<Theme>("dark");
   const [notifications, setNotifications] = useState(true);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -70,7 +68,6 @@ export default function SettingsPage() {
 
   const themeOptions: { value: Theme; label: string; icon: string }[] = [
     { value: "light", label: "Claro", icon: "☀️" },
-    { value: "system", label: "Sistema", icon: "💻" },
     { value: "dark", label: "Oscuro", icon: "🌙" },
   ];
 
