@@ -176,6 +176,9 @@ export default function Navbar() {
                 <Link href="/register" className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium">
                   Registrarse
                 </Link>
+                <Link href="/register" className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
+                  ¿Sos profesional?
+                </Link>
               </>
             )}
           </div>
@@ -247,6 +250,13 @@ export default function Navbar() {
                     className="mt-1 bg-orange-500 text-white px-3 py-2.5 rounded-lg text-sm font-medium text-center hover:bg-orange-600 transition-colors"
                   >
                     Registrarse
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-center text-xs text-zinc-500 dark:text-zinc-400 hover:text-orange-500 transition-colors py-1"
+                  >
+                    ¿Sos profesional?
                   </Link>
                 </>
               )}
