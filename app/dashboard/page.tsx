@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import ProfessionalProfileBanner from "@/components/ProfessionalProfileBanner";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -112,25 +113,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* Professional setup banner — only for professionals without complete profile */}
-        {isProfessional && (
-          <div className="mt-6 bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 rounded-2xl p-6 flex items-center justify-between gap-4">
-            <div>
-              <h3 className="font-semibold text-orange-900 dark:text-orange-100 mb-1">
-                ¿Completaste tu perfil profesional?
-              </h3>
-              <p className="text-sm text-orange-700 dark:text-orange-300">
-                Un perfil completo recibe hasta 3x más solicitudes
-              </p>
-            </div>
-            <Link
-              href="/professional/setup"
-              className="shrink-0 px-5 py-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium text-sm"
-            >
-              Completar ahora
-            </Link>
-          </div>
-        )}
+        {isProfessional && <ProfessionalProfileBanner />}
 
         {/* Client discovery banner */}
         {!isProfessional && (
