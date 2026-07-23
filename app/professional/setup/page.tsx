@@ -37,17 +37,16 @@ export default function ProfessionalSetupPage() {
     const form = e.currentTarget;
     const data = new FormData(form);
 
-    const experienceMap: Record<string, number> = {
-      "0-2": 1, "2-5": 3, "5-10": 7, "10+": 15,
-    };
+    const serviceId = (data.get("serviceId") as string) || null;
+    const experienceRaw = (data.get("experience") as string) || null;
 
     const body = {
       name: (data.get("businessName") as string) || session!.user.name || session!.user.email!,
-      serviceId: data.get("serviceId") as string,
+      serviceId,
       hourlyRate: data.get("hourlyRate") ? parseInt(data.get("hourlyRate") as string) : null,
       location: (data.get("workArea") as string) || null,
       description: (data.get("description") as string) || null,
-      experience: experienceMap[data.get("experience") as string] ?? null,
+      experience: experienceRaw, // guardar el valor original "0-2", "2-5", etc.
       availability: "disponible",
     };
 

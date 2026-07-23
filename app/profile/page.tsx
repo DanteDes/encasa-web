@@ -11,13 +11,20 @@ import AvatarUpload from "@/components/AvatarUpload";
 
 interface ProfProfile {
   name?: string;
-  serviceId?: string;
+  serviceId?: string | null;
   hourlyRate?: number | null;
   location?: string | null;
   description?: string | null;
-  experience?: number | null;
+  experience?: string | null; // "0-2" | "2-5" | "5-10" | "10+"
   availability?: string;
 }
+
+const EXPERIENCE_LABELS: Record<string, string> = {
+  "0-2": "Menos de 2 años",
+  "2-5": "2 a 5 años",
+  "5-10": "5 a 10 años",
+  "10+": "Más de 10 años",
+};
 
 function buildProfileFromSession(user: {
   name?: string | null;
@@ -270,7 +277,7 @@ export default function ProfilePage() {
                 <div>
                   <label className="block text-sm font-medium text-zinc-500 mb-1">Experiencia</label>
                   <div className={fieldClass}>
-                    {profProfile.experience ? `${profProfile.experience} años` : "—"}
+                    {profProfile.experience ? (EXPERIENCE_LABELS[profProfile.experience] ?? profProfile.experience) : "—"}
                   </div>
                 </div>
                 {profProfile.description && (

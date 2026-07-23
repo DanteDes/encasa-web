@@ -37,7 +37,10 @@ export default function Navbar() {
               <>
                 {/* Links solo para logueados */}
                 {isProfessional && (
-                  <Link href="/" className={navLink}>Inicio</Link>
+                  <>
+                    <Link href="/" className={navLink}>Inicio</Link>
+                    <Link href="/solicitudes" className={navLink}>Solicitudes</Link>
+                  </>
                 )}
                 <Link href="/services" className={navLink}>Servicios</Link>
                 <Link href="/professionals" className={navLink}>Profesionales</Link>
@@ -142,7 +145,10 @@ export default function Navbar() {
               {isLoggedIn ? (
                 <>
                   {isProfessional && (
-                    <MobileLink href="/" onClick={() => setIsMenuOpen(false)}>Inicio</MobileLink>
+                    <>
+                      <MobileLink href="/" onClick={() => setIsMenuOpen(false)}>Inicio</MobileLink>
+                      <MobileLink href="/solicitudes" onClick={() => setIsMenuOpen(false)}>Solicitudes</MobileLink>
+                    </>
                   )}
                   <MobileLink href="/services" onClick={() => setIsMenuOpen(false)}>Servicios</MobileLink>
                   <MobileLink href="/professionals" onClick={() => setIsMenuOpen(false)}>Profesionales</MobileLink>

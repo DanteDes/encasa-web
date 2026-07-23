@@ -14,8 +14,8 @@ const tips = [
     icon: "⚡",
     title: "Respondé rápido",
     desc: "Los clientes suelen elegir al primero que responde. El tiempo de respuesta es clave para conseguir el trabajo.",
-    href: "/contact",
-    cta: "Ver contactos",
+    href: "/solicitudes",
+    cta: "Ver solicitudes",
   },
   {
     icon: "⭐",
