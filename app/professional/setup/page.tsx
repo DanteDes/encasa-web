@@ -26,6 +26,7 @@ export default function ProfessionalSetupPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [existing, setExisting] = useState<SavedProfile | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     getServices().then(setServices);
@@ -138,7 +139,21 @@ export default function ProfessionalSetupPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form
+            onSubmit={handleSubmit}
+            onChange={(e) => {
+              const data = new FormData(e.currentTarget);
+              const changed =
+                (data.get("businessName") as string) !== (existing?.name ?? session!.user.name ?? "") ||
+                (data.get("serviceId") as string) !== (existing?.serviceId ?? "") ||
+                (data.get("experience") as string) !== (existing?.experience ?? "") ||
+                (data.get("hourlyRate") as string) !== String(existing?.hourlyRate ?? "") ||
+                (data.get("workArea") as string) !== (existing?.location ?? "") ||
+                (data.get("description") as string) !== (existing?.description ?? "");
+              setHasChanges(changed);
+            }}
+            className="space-y-6"
+          >
             <div>
               <label htmlFor="businessName" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Nombre del negocio o profesional
@@ -232,7 +247,7 @@ export default function ProfessionalSetupPage() {
               </Link>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !hasChanges}
                 className="flex-1 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Guardando..." : "Guardar y continuar"}
