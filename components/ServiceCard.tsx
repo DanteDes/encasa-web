@@ -33,25 +33,27 @@ export default function ServiceCard({ service, linked = true }: ServiceCardProps
           {service.description}
         </p>
 
-        {/* CTA */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-orange-500 dark:text-orange-400 group-hover:underline">
-            Ver profesionales
-          </span>
-          <svg
-            className="w-5 h-5 text-orange-500 dark:text-orange-400 transform group-hover:translate-x-1 transition-transform"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </div>
+        {/* CTA — solo cuando la card es clickeable */}
+        {linked && (
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-orange-500 dark:text-orange-400 group-hover:underline">
+              Ver profesionales
+            </span>
+            <svg
+              className="w-5 h-5 text-orange-500 dark:text-orange-400 transform group-hover:translate-x-1 transition-transform"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </div>
+        )}
 
         {/* Hover gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
