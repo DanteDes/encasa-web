@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Session } from "next-auth";
 import ProfessionalProfileBanner from "./ProfessionalProfileBanner";
 
-const tips = [
+const tips: { icon: string; title: string; desc: string; href: string | null; cta: string | null }[] = [
   {
     icon: "📝",
     title: "Completá tu perfil",
@@ -14,8 +14,8 @@ const tips = [
     icon: "⚡",
     title: "Respondé rápido",
     desc: "Los clientes suelen elegir al primero que responde. Cuando te contacten por WhatsApp, respondé lo antes que puedas.",
-    href: "/professional/setup",
-    cta: "Actualizar disponibilidad",
+    href: null,
+    cta: null,
   },
   {
     icon: "⭐",
@@ -114,12 +114,14 @@ export default function ProfessionalHome({ session }: { session: Session }) {
                 <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-3">
                   {tip.desc}
                 </p>
-                <Link
-                  href={tip.href}
-                  className="text-xs font-semibold text-orange-500 hover:text-orange-600 transition-colors"
-                >
-                  {tip.cta} →
-                </Link>
+                {tip.href && tip.cta && (
+                  <Link
+                    href={tip.href}
+                    className="text-xs font-semibold text-orange-500 hover:text-orange-600 transition-colors"
+                  >
+                    {tip.cta} →
+                  </Link>
+                )}
               </div>
             </div>
           ))}
