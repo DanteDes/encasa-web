@@ -83,6 +83,42 @@ export default function ProfessionalHome({ session }: { session: Session }) {
         </div>
       </section>
 
+      {/* ── Acciones rápidas ── */}
+      <section className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <Link
+            href="/professional/setup"
+            className="flex items-center gap-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-orange-500 dark:hover:border-orange-500 rounded-xl px-5 py-4 transition-colors group"
+          >
+            <span className="text-2xl">✏️</span>
+            <div>
+              <p className="font-semibold text-zinc-900 dark:text-white text-sm group-hover:text-orange-500 transition-colors">Editar perfil</p>
+              <p className="text-xs text-zinc-500">Disponibilidad, tarifa y descripción</p>
+            </div>
+          </Link>
+          <Link
+            href="/professionals"
+            className="flex items-center gap-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-orange-500 dark:hover:border-orange-500 rounded-xl px-5 py-4 transition-colors group"
+          >
+            <span className="text-2xl">👥</span>
+            <div>
+              <p className="font-semibold text-zinc-900 dark:text-white text-sm group-hover:text-orange-500 transition-colors">Ver la competencia</p>
+              <p className="text-xs text-zinc-500">Comparate con otros profesionales</p>
+            </div>
+          </Link>
+          <Link
+            href="/profile"
+            className="flex items-center gap-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-orange-500 dark:hover:border-orange-500 rounded-xl px-5 py-4 transition-colors group"
+          >
+            <span className="text-2xl">👤</span>
+            <div>
+              <p className="font-semibold text-zinc-900 dark:text-white text-sm group-hover:text-orange-500 transition-colors">Mi perfil</p>
+              <p className="text-xs text-zinc-500">Datos personales y profesionales</p>
+            </div>
+          </Link>
+        </div>
+      </section>
+
       {/* ── Banner completar perfil (solo si no está completo) ── */}
       <ProfessionalProfileBanner />
 
