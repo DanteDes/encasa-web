@@ -157,7 +157,7 @@ export default function ProfessionalSetupPage() {
               <label htmlFor="serviceId" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Servicio principal <span className="text-red-500">*</span>
               </label>
-              <select id="serviceId" name="serviceId" required defaultValue={existing?.serviceId ?? ""} className={inputClass}>
+              <select id="serviceId" name="serviceId" required key={services.length} defaultValue={existing?.serviceId ?? ""} className={inputClass}>
                 <option value="">Seleccioná un servicio</option>
                 {services.map((s) => (
                   <option key={s.id} value={s.id}>
