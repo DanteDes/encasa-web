@@ -28,8 +28,8 @@ const tips: { icon: string; title: string; desc: string; href: string | null; ct
     icon: "📍",
     title: "Actualizá tu disponibilidad",
     desc: "Marcate como disponible cuando tenés lugar en la agenda. Los clientes filtran por disponibilidad inmediata.",
-    href: "/professional/setup",
-    cta: "Actualizar",
+    href: null,
+    cta: null,
   },
 ];
 
