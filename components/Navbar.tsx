@@ -36,6 +36,9 @@ export default function Navbar() {
             {isLoggedIn ? (
               <>
                 {/* Links solo para logueados */}
+                {isProfessional && (
+                  <Link href="/" className={navLink}>Inicio</Link>
+                )}
                 <Link href="/services" className={navLink}>Servicios</Link>
                 <Link href="/professionals" className={navLink}>Profesionales</Link>
                 {!isProfessional && (
@@ -138,6 +141,9 @@ export default function Navbar() {
             <div className="flex flex-col gap-1">
               {isLoggedIn ? (
                 <>
+                  {isProfessional && (
+                    <MobileLink href="/" onClick={() => setIsMenuOpen(false)}>Inicio</MobileLink>
+                  )}
                   <MobileLink href="/services" onClick={() => setIsMenuOpen(false)}>Servicios</MobileLink>
                   <MobileLink href="/professionals" onClick={() => setIsMenuOpen(false)}>Profesionales</MobileLink>
                   {!isProfessional && (
