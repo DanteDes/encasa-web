@@ -7,6 +7,7 @@ import { getServices } from "@/lib/api";
 import { Service } from "@/types";
 import Link from "next/link";
 import Logo from "@/components/Logo";
+import { AVAILABLE_TAGS, MAX_TAGS } from "@/lib/serviceTags";
 
 interface SavedProfile {
   name?: string;
@@ -15,6 +16,8 @@ interface SavedProfile {
   location?: string | null;
   description?: string | null;
   experience?: string | null;
+  availability?: string;
+  tags?: string[];
 }
 
 export default function ProfessionalSetupPage() {
@@ -27,12 +30,17 @@ export default function ProfessionalSetupPage() {
   const [existing, setExisting] = useState<SavedProfile | null>(null);
   const [mounted, setMounted] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   useEffect(() => {
     getServices().then(setServices);
     try {
       const raw = localStorage.getItem("encasa_prof_profile");
-      if (raw) setExisting(JSON.parse(raw));
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setExisting(parsed);
+        if (Array.isArray(parsed.tags)) setSelectedTags(parsed.tags);
+      }
     } catch {}
     setMounted(true);
   }, []);
@@ -63,8 +71,9 @@ export default function ProfessionalSetupPage() {
       hourlyRate: data.get("hourlyRate") ? parseInt(data.get("hourlyRate") as string) : null,
       location: (data.get("workArea") as string) || null,
       description: (data.get("description") as string) || null,
-      experience: experienceRaw, // guardar el valor original "0-2", "2-5", etc.
-      availability: "disponible",
+      experience: experienceRaw,
+      availability: (data.get("availability") as string) || "disponible",
+      tags: selectedTags,
     };
 
     // Guardar localmente siempre (funciona sin backend)
@@ -150,7 +159,7 @@ export default function ProfessionalSetupPage() {
                 (data.get("hourlyRate") as string) !== String(existing?.hourlyRate ?? "") ||
                 (data.get("workArea") as string) !== (existing?.location ?? "") ||
                 (data.get("description") as string) !== (existing?.description ?? "");
-              setHasChanges(changed);
+              setHasChanges(changed); // tags se manejan por separado con setHasChanges(true) en el onClick
             }}
             className="space-y-6"
           >
@@ -236,6 +245,58 @@ export default function ProfessionalSetupPage() {
                 placeholder="Contanos sobre tu experiencia, especialidades y por qué los clientes deberían elegirte..."
                 className={`${inputClass} resize-none`}
               />
+            </div>
+
+            {/* Disponibilidad */}
+            <div>
+              <label htmlFor="availability" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                Estado de disponibilidad
+              </label>
+              <select id="availability" name="availability" defaultValue={existing?.availability ?? "disponible"} className={inputClass}>
+                <option value="disponible">Disponible ahora</option>
+                <option value="ocupado">Ocupado</option>
+                <option value="no-disponible">No disponible</option>
+              </select>
+            </div>
+
+            {/* Tags */}
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                Características del servicio
+                <span className="ml-2 text-xs font-normal text-zinc-400">
+                  ({selectedTags.length}/{MAX_TAGS} seleccionadas)
+                </span>
+              </label>
+              <p className="text-xs text-zinc-500 mb-3">Elegí hasta {MAX_TAGS} que apliquen a tu trabajo</p>
+              <div className="flex flex-wrap gap-2">
+                {AVAILABLE_TAGS.map((tag) => {
+                  const isSelected = selectedTags.includes(tag);
+                  const isDisabled = !isSelected && selectedTags.length >= MAX_TAGS;
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      disabled={isDisabled}
+                      onClick={() => {
+                        const next = isSelected
+                          ? selectedTags.filter((t) => t !== tag)
+                          : [...selectedTags, tag];
+                        setSelectedTags(next);
+                        setHasChanges(true);
+                      }}
+                      className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                        isSelected
+                          ? "bg-orange-500 border-orange-500 text-white"
+                          : isDisabled
+                          ? "border-zinc-200 dark:border-zinc-700 text-zinc-300 dark:text-zinc-600 cursor-not-allowed"
+                          : "border-zinc-300 dark:border-zinc-600 text-zinc-600 dark:text-zinc-400 hover:border-orange-400 hover:text-orange-500"
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="flex gap-4 pt-2">

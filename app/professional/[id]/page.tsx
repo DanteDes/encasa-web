@@ -5,6 +5,7 @@ import type { Professional, Review } from "@/types";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProfessionalActions from "@/components/ProfessionalActions";
+import ProfServiceTags from "@/components/ProfServiceTags";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -155,17 +156,7 @@ export default async function ProfessionalDetailPage({ params }: PageProps) {
         {/* Services */}
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 mb-8">
           <h2 className="text-2xl font-bold mb-4 text-zinc-900 dark:text-white">Servicios que ofrece</h2>
-          <div className="flex flex-wrap gap-2">
-            <span className="bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100 px-4 py-2 rounded-lg">
-              {professional!.service}
-            </span>
-            <span className="bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 px-4 py-2 rounded-lg">
-              Presupuestos sin cargo
-            </span>
-            <span className="bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 px-4 py-2 rounded-lg">
-              Garantía de trabajo
-            </span>
-          </div>
+          <ProfServiceTags service={professional!.service} />
         </div>
 
         {/* Reviews */}
