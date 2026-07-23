@@ -220,16 +220,19 @@ export default async function Home() {
             Gratis. Sin compromiso. Con profesionales verificados.
           </p>
 
-          <Link
-            href="/professionals"
-            className="inline-block bg-orange-500 text-white px-8 py-4 rounded-xl hover:bg-orange-600 transition-all font-semibold text-lg shadow-lg shadow-orange-900/30 hover:shadow-orange-900/50 hover:scale-105"
-          >
-            Ver Profesionales Disponibles →
-          </Link>
-
-          <p className="text-sm text-zinc-500 mt-4">
-            Más de 120 profesionales esperando tu consulta
-          </p>
+          {session && (
+            <>
+              <Link
+                href="/professionals"
+                className="inline-block bg-orange-500 text-white px-8 py-4 rounded-xl hover:bg-orange-600 transition-all font-semibold text-lg shadow-lg shadow-orange-900/30 hover:shadow-orange-900/50 hover:scale-105"
+              >
+                Ver Profesionales Disponibles →
+              </Link>
+              <p className="text-sm text-zinc-500 mt-4">
+                Más de 120 profesionales esperando tu consulta
+              </p>
+            </>
+          )}
 
           {/* Secondary CTA */}
           <div className="mt-6">
