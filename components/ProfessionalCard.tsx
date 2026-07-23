@@ -128,7 +128,7 @@ export default function ProfessionalCard({
           <div className="text-right">
             <div className="text-2xl font-bold text-zinc-900 dark:text-white">
               {professional.hourlyRate != null
-                ? `$${professional.hourlyRate.toLocaleString()}`
+                ? `$${professional.hourlyRate.toLocaleString('es-AR')}`
                 : "A consultar"}
             </div>
             <div className="text-xs text-zinc-500">por hora</div>

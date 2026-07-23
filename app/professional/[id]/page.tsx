@@ -114,7 +114,7 @@ export default async function ProfessionalDetailPage({ params }: PageProps) {
                 {professional!.hourlyRate != null && (
                   <div>
                     <span className="text-3xl font-bold text-zinc-900 dark:text-white">
-                      ${professional!.hourlyRate.toLocaleString()}
+                      ${professional!.hourlyRate.toLocaleString('es-AR')}
                     </span>
                     <span className="text-zinc-500">/hora</span>
                   </div>
