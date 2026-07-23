@@ -16,28 +16,27 @@ export default function NewsletterForm() {
     return (
       <div className="flex items-center gap-2 text-green-400 text-sm font-medium">
         <span>✓</span>
-        <span>¡Te anotaste! Te enviaremos novedades pronto.</span>
+        <span>¡Te anotaste!</span>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+    <form onSubmit={handleSubmit} className="flex gap-2 max-w-xs">
       <input
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="tu@email.com"
         required
-        className="px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 text-xs focus:outline-none focus:ring-1 focus:ring-orange-500"
       />
       <button
         type="submit"
-        className="px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-lg transition-colors"
+        className="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-medium rounded-lg transition-colors whitespace-nowrap"
       >
-        Suscribirme gratis
+        Suscribirse
       </button>
-      <p className="text-xs text-zinc-500">Sin spam. Cancelá cuando quieras.</p>
     </form>
   );
 }
