@@ -58,11 +58,11 @@ function ProfessionalsContent() {
             <span className="text-zinc-900 dark:text-white">Profesionales</span>
           </nav>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-zinc-900 dark:text-white">
-            {isProfessional ? "El mercado" : "Encontrá tu Profesional"}
+            {isProfessional ? "Profesionales disponibles" : "Encontrá tu Profesional"}
           </h1>
           <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-3xl">
             {isProfessional
-              ? "Compará precios, servicios y calificaciones con otros profesionales de Mar del Plata."
+              ? "Consultá precios, servicios y calificaciones de otros profesionales de la plataforma."
               : "Explorá perfiles verificados, compará precios y elegí el mejor profesional para tu proyecto"}
           </p>
         </div>
