@@ -176,7 +176,8 @@ export default function Navbar() {
                 <Link href="/register" className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium">
                   Registrarse
                 </Link>
-                <Link href="/register" className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
+                <span className="w-px h-5 bg-zinc-200 dark:bg-zinc-700" />
+                <Link href="/register" className={navLink}>
                   ¿Sos profesional?
                 </Link>
               </>
