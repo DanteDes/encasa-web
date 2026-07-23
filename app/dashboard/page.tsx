@@ -96,16 +96,15 @@ export default async function DashboardPage() {
             <div className="flex flex-col gap-3">
               {isProfessional ? (
                 <>
-                  <QuickAction href="/professional/setup" icon="🔧" label="Configurar perfil profesional" />
-                  <QuickAction href="/profile" icon="👤" label="Mi perfil" />
-                  <QuickAction href="/professionals" icon="👥" label="Ver otros profesionales" />
+                  <QuickAction href="/professional/setup" icon="🔧" label="Editar perfil profesional" />
+                  <QuickAction href="/professionals" icon="👥" label="Ver la competencia" />
                   <QuickAction href="/settings" icon="⚙️" label="Configuración" />
                 </>
               ) : (
                 <>
                   <QuickAction href="/services" icon="🔍" label="Buscar un servicio" />
                   <QuickAction href="/professionals" icon="👥" label="Ver profesionales" />
-                  <QuickAction href="/profile" icon="👤" label="Mi perfil" />
+                  <QuickAction href="/favorites" icon="❤️" label="Mis favoritos" />
                   <QuickAction href="/settings" icon="⚙️" label="Configuración" />
                 </>
               )}

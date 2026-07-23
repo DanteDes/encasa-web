@@ -1,9 +1,11 @@
 import ServiceCard from "@/components/ServiceCard";
 import { getServices } from "@/lib/api";
+import { auth } from "@/auth";
 import Link from "next/link";
 
 export default async function ServicesPage() {
-  const services = await getServices();
+  const [services, session] = await Promise.all([getServices(), auth()]);
+  const isProfessional = session?.user?.role === "professional";
 
   return (
     <div className="min-h-screen py-12">
@@ -18,11 +20,12 @@ export default async function ServicesPage() {
             <span className="text-zinc-900 dark:text-white">Servicios</span>
           </nav>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-zinc-900 dark:text-white">
-            Todos los Servicios
+            {isProfessional ? "Categorías de servicios" : "Todos los Servicios"}
           </h1>
           <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-3xl">
-            Explorá todas las categorías de servicios domésticos disponibles.
-            Cada categoría cuenta con profesionales verificados y calificados.
+            {isProfessional
+              ? "Explorá las categorías disponibles y cómo aparecen los profesionales de cada rubro."
+              : "Explorá todas las categorías de servicios domésticos disponibles. Cada categoría cuenta con profesionales verificados y calificados."}
           </p>
         </div>
 
@@ -40,22 +43,38 @@ export default async function ServicesPage() {
           </div>
         )}
 
-        {/* CTA */}
-        <div className="mt-8 bg-orange-50 dark:bg-orange-950/20 rounded-2xl p-8 text-center">
-          <h2 className="text-2xl font-bold mb-4 text-zinc-900 dark:text-white">
-            ¿No encontrás lo que buscás?
-          </h2>
-          <p className="text-zinc-600 dark:text-zinc-400 mb-6">
-            Contactanos y te ayudamos a encontrar el profesional perfecto para
-            tu necesidad
-          </p>
-          <Link
-            href="/contact"
-            className="inline-block bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors"
-          >
-            Contactar
-          </Link>
-        </div>
+        {/* CTA diferenciado por rol */}
+        {isProfessional ? (
+          <div className="mt-8 bg-orange-50 dark:bg-orange-950/20 rounded-2xl p-8 text-center">
+            <h2 className="text-2xl font-bold mb-4 text-zinc-900 dark:text-white">
+              ¿Tu categoría está completa?
+            </h2>
+            <p className="text-zinc-600 dark:text-zinc-400 mb-6">
+              Asegurate de que tu perfil profesional esté al día para destacar en tu categoría.
+            </p>
+            <Link
+              href="/professional/setup"
+              className="inline-block bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors font-medium"
+            >
+              Editar mi perfil
+            </Link>
+          </div>
+        ) : (
+          <div className="mt-8 bg-orange-50 dark:bg-orange-950/20 rounded-2xl p-8 text-center">
+            <h2 className="text-2xl font-bold mb-4 text-zinc-900 dark:text-white">
+              ¿No encontrás lo que buscás?
+            </h2>
+            <p className="text-zinc-600 dark:text-zinc-400 mb-6">
+              Contactanos y te ayudamos a encontrar el profesional perfecto para tu necesidad.
+            </p>
+            <Link
+              href="/contact"
+              className="inline-block bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors font-medium"
+            >
+              Contactar
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
