@@ -23,7 +23,7 @@ export default async function DashboardPage() {
               <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">Dashboard</h1>
               <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
                 isProfessional
-                  ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300"
+                  ? "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300"
                   : "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
               }`}>
                 {isProfessional ? "Profesional" : "Cliente"}
@@ -81,7 +81,7 @@ export default async function DashboardPage() {
               </p>
               <Link
                 href={isProfessional ? "/professional/setup" : "/services"}
-                className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                className="inline-block px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
               >
                 {isProfessional ? "Completar perfil" : "Buscar profesionales"}
               </Link>
@@ -115,18 +115,18 @@ export default async function DashboardPage() {
 
         {/* Professional setup banner — only for professionals without complete profile */}
         {isProfessional && (
-          <div className="mt-6 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 flex items-center justify-between gap-4">
+          <div className="mt-6 bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 rounded-2xl p-6 flex items-center justify-between gap-4">
             <div>
-              <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+              <h3 className="font-semibold text-orange-900 dark:text-orange-100 mb-1">
                 ¿Completaste tu perfil profesional?
               </h3>
-              <p className="text-sm text-blue-700 dark:text-blue-300">
+              <p className="text-sm text-orange-700 dark:text-orange-300">
                 Un perfil completo recibe hasta 3x más solicitudes
               </p>
             </div>
             <Link
               href="/professional/setup"
-              className="shrink-0 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+              className="shrink-0 px-5 py-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium text-sm"
             >
               Completar ahora
             </Link>
@@ -135,7 +135,7 @@ export default async function DashboardPage() {
 
         {/* Client discovery banner */}
         {!isProfessional && (
-          <div className="mt-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border border-blue-100 dark:border-blue-900 rounded-2xl p-6 flex items-center justify-between gap-4">
+          <div className="mt-6 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 flex items-center justify-between gap-4">
             <div>
               <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">
                 ¿Necesitás un profesional ahora?
@@ -146,7 +146,7 @@ export default async function DashboardPage() {
             </div>
             <Link
               href="/services"
-              className="shrink-0 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+              className="shrink-0 px-5 py-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium text-sm"
             >
               Explorar servicios
             </Link>

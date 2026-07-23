@@ -36,15 +36,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // if (!res.ok) return null;
         // return res.json();
 
-        // Demo: acepta cualquier email con contraseña de al menos 6 caracteres
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email) || password.length < 6) return null;
 
+        // Cuenta de demo para el rol profesional
+        if (email === "profesional@encasa.com" && password === "prof1234") {
+          return { id: "demo-prof", email, name: "Demo Profesional", role: "professional" };
+        }
+
+        // Cualquier otro email/password válido → cliente
         const name = email.split("@")[0].replace(/[._-]/g, " ");
         return {
           id: email,
           email,
           name: name.charAt(0).toUpperCase() + name.slice(1),
+          role: "client",
         };
       },
     }),
@@ -60,7 +66,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return true;
     },
-    async jwt({ token, account }) {
+    async jwt({ token, account, user }) {
+      // Persist role from Credentials authorize into the token
+      if (user?.role) token.role = user.role;
       const apiUrl =
         process.env.BACKEND_URL ??
         process.env.NEXT_PUBLIC_API_URL ??
