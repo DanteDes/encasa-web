@@ -40,6 +40,25 @@ export default function RegisterEmailForm({ redirectTo }: Props) {
     }
 
     setLoading(true);
+
+    // Intentar registrar en el backend
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+    try {
+      const regRes = await fetch(`${apiUrl}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password, name: nombre.trim() }),
+        signal: AbortSignal.timeout(3000),
+      });
+      if (!regRes.ok && regRes.status === 409) {
+        setLoading(false);
+        setError("El email ya está registrado. Iniciá sesión.");
+        return;
+      }
+    } catch {
+      // Backend no disponible — continúa con signIn de todas formas (modo demo)
+    }
+
     const result = await signIn("credentials", {
       email: email.trim(),
       password,
