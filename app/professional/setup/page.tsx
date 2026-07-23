@@ -8,6 +8,15 @@ import { Service } from "@/types";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 
+interface SavedProfile {
+  name?: string;
+  serviceId?: string | null;
+  hourlyRate?: number | null;
+  location?: string | null;
+  description?: string | null;
+  experience?: string | null;
+}
+
 export default function ProfessionalSetupPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -15,12 +24,19 @@ export default function ProfessionalSetupPage() {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [services, setServices] = useState<Service[]>([]);
+  const [existing, setExisting] = useState<SavedProfile | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     getServices().then(setServices);
+    try {
+      const raw = localStorage.getItem("encasa_prof_profile");
+      if (raw) setExisting(JSON.parse(raw));
+    } catch {}
+    setMounted(true);
   }, []);
 
-  if (status === "loading") {
+  if (status === "loading" || !mounted) {
     return <div className="min-h-screen flex items-center justify-center text-zinc-500">Cargando...</div>;
   }
 
@@ -131,7 +147,7 @@ export default function ProfessionalSetupPage() {
                 id="businessName"
                 name="businessName"
                 type="text"
-                defaultValue={session.user.name ?? ""}
+                defaultValue={existing?.name ?? session.user.name ?? ""}
                 placeholder="Ej: Electricidad López"
                 className={inputClass}
               />
@@ -141,7 +157,7 @@ export default function ProfessionalSetupPage() {
               <label htmlFor="serviceId" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Servicio principal <span className="text-red-500">*</span>
               </label>
-              <select id="serviceId" name="serviceId" required className={inputClass}>
+              <select id="serviceId" name="serviceId" required defaultValue={existing?.serviceId ?? ""} className={inputClass}>
                 <option value="">Seleccioná un servicio</option>
                 {services.map((s) => (
                   <option key={s.id} value={s.id}>
@@ -155,7 +171,7 @@ export default function ProfessionalSetupPage() {
               <label htmlFor="experience" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Años de experiencia
               </label>
-              <select id="experience" name="experience" className={inputClass}>
+              <select id="experience" name="experience" defaultValue={existing?.experience ?? ""} className={inputClass}>
                 <option value="">Seleccioná tu experiencia</option>
                 <option value="0-2">Menos de 2 años</option>
                 <option value="2-5">2 a 5 años</option>
@@ -173,6 +189,7 @@ export default function ProfessionalSetupPage() {
                 name="hourlyRate"
                 type="number"
                 min={0}
+                defaultValue={existing?.hourlyRate ?? ""}
                 placeholder="Ej: 5000"
                 className={inputClass}
               />
@@ -186,6 +203,7 @@ export default function ProfessionalSetupPage() {
                 id="workArea"
                 name="workArea"
                 type="text"
+                defaultValue={existing?.location ?? ""}
                 placeholder="Ej: Mar del Plata y alrededores"
                 className={inputClass}
               />
@@ -199,6 +217,7 @@ export default function ProfessionalSetupPage() {
                 id="description"
                 name="description"
                 rows={4}
+                defaultValue={existing?.description ?? ""}
                 placeholder="Contanos sobre tu experiencia, especialidades y por qué los clientes deberían elegirte..."
                 className={`${inputClass} resize-none`}
               />
