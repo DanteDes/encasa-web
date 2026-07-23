@@ -10,10 +10,10 @@ export default async function Footer() {
   return (
     <footer className="bg-zinc-900 text-zinc-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className={`grid grid-cols-1 gap-10 ${isLoggedIn ? "md:grid-cols-5" : "md:grid-cols-3"}`}>
+        <div className="flex flex-wrap gap-10">
 
-          {/* Brand + newsletter — takes 2 cols */}
-          <div className="md:col-span-2 space-y-6">
+          {/* Brand + newsletter */}
+          <div className="flex-[2] min-w-[220px] space-y-6">
             <div>
               <div className="mb-3">
                 <Logo className="text-white" width={140} height={32} />
@@ -38,7 +38,7 @@ export default async function Footer() {
 
           {/* Servicios — solo logueados */}
           {isLoggedIn && (
-            <div>
+            <div className="flex-1 min-w-[130px]">
               <h3 className="font-semibold text-white mb-4 text-sm uppercase tracking-wide">
                 Servicios
               </h3>
@@ -55,7 +55,7 @@ export default async function Footer() {
 
           {/* Empresa — solo logueados */}
           {isLoggedIn && (
-            <div>
+            <div className="flex-1 min-w-[130px]">
               <h3 className="font-semibold text-white mb-4 text-sm uppercase tracking-wide">
                 Empresa
               </h3>
@@ -69,7 +69,7 @@ export default async function Footer() {
           )}
 
           {/* Legal */}
-          <div>
+          <div className="flex-1 min-w-[150px]">
             <h3 className="font-semibold text-white mb-4 text-sm uppercase tracking-wide">
               Legal
             </h3>
