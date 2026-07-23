@@ -90,12 +90,6 @@ export default function Navbar() {
                             {isProfessional ? "Profesional" : "Cliente"}
                           </span>
                         </div>
-                        <Link href="/dashboard" className="block px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => setIsUserMenuOpen(false)}>
-                          Dashboard
-                        </Link>
-                        <Link href="/profile" className="block px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => setIsUserMenuOpen(false)}>
-                          Mi Perfil
-                        </Link>
                         <Link href="/settings" className="block px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => setIsUserMenuOpen(false)}>
                           Configuración
                         </Link>
@@ -146,18 +140,6 @@ export default function Navbar() {
                   <MobileLink href="/professionals" onClick={() => setIsMenuOpen(false)}>Profesionales</MobileLink>
                   <MobileLink href="/favorites" onClick={() => setIsMenuOpen(false)}>Favoritos</MobileLink>
 
-                  {isProfessional && (
-                    <>
-                      <hr className="border-zinc-200 dark:border-zinc-700" />
-                      <Link href="/dashboard" onClick={() => setIsMenuOpen(false)} className="bg-orange-500 text-white px-4 py-3 rounded-lg text-sm font-semibold text-center hover:bg-orange-600 transition-colors">
-                        Dashboard
-                      </Link>
-                      <Link href="/profile" onClick={() => setIsMenuOpen(false)} className="border border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-200 px-4 py-3 rounded-lg text-sm font-semibold text-center hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
-                        Mi Perfil
-                      </Link>
-                    </>
-                  )}
-
                   <hr className="border-zinc-200 dark:border-zinc-800 my-1" />
                   <div className="flex items-center gap-3 px-2 py-2">
                     {session.user.image ? (
@@ -171,16 +153,13 @@ export default function Navbar() {
                       <p className="text-sm font-medium text-zinc-900 dark:text-white">{session.user.name}</p>
                       <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
                         isProfessional
-                          ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300"
+                          ? "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300"
                           : "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
                       }`}>
                         {isProfessional ? "Profesional" : "Cliente"}
                       </span>
                     </div>
                   </div>
-                  {!isProfessional && (
-                    <MobileLink href="/profile" onClick={() => setIsMenuOpen(false)}>Mi Perfil</MobileLink>
-                  )}
                   <MobileLink href="/settings" onClick={() => setIsMenuOpen(false)}>Configuración</MobileLink>
                   <button
                     onClick={() => signOut({ callbackUrl: "/" })}
