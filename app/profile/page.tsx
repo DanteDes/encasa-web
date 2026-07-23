@@ -7,6 +7,19 @@ import { apiFetch } from "@/lib/api";
 import { UserProfile } from "@/types";
 import Link from "next/link";
 
+function buildProfileFromSession(user: { name?: string | null; email?: string | null; image?: string | null; role?: string }): UserProfile {
+  return {
+    id: 0,
+    email: user.email ?? "",
+    name: user.name ?? null,
+    phone: null,
+    avatar: user.image ?? null,
+    bio: null,
+    location: null,
+    role: user.role ?? "client",
+  };
+}
+
 export default function ProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -20,10 +33,17 @@ export default function ProfilePage() {
   }, [status, router]);
 
   useEffect(() => {
-    if (session?.user?.backendToken) {
+    if (!session?.user) return;
+
+    if (session.user.backendToken) {
       apiFetch<UserProfile>("/users/me", { token: session.user.backendToken })
         .then(setProfile)
-        .catch(console.error);
+        .catch(() => {
+          // Backend no disponible — armar perfil desde la sesión
+          setProfile(buildProfileFromSession(session.user));
+        });
+    } else {
+      setProfile(buildProfileFromSession(session.user));
     }
   }, [session]);
 
@@ -107,23 +127,23 @@ export default function ProfilePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Nombre</label>
-                  <input name="name" defaultValue={profile.name ?? ""} className="w-full px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <input name="name" defaultValue={profile.name ?? ""} className="w-full px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Teléfono</label>
-                  <input name="phone" defaultValue={profile.phone ?? ""} placeholder="223-000-0000" className="w-full px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <input name="phone" defaultValue={profile.phone ?? ""} placeholder="223-000-0000" className="w-full px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Ubicación</label>
-                <input name="location" defaultValue={profile.location ?? ""} placeholder="Mar del Plata, Buenos Aires" className="w-full px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <input name="location" defaultValue={profile.location ?? ""} placeholder="Mar del Plata, Buenos Aires" className="w-full px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Bio</label>
-                <textarea name="bio" defaultValue={profile.bio ?? ""} rows={3} placeholder="Contanos algo sobre vos..." className="w-full px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
+                <textarea name="bio" defaultValue={profile.bio ?? ""} rows={3} placeholder="Contanos algo sobre vos..." className="w-full px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none" />
               </div>
               <div className="flex gap-3 pt-2">
-                <button type="submit" disabled={saving} className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50">
+                <button type="submit" disabled={saving} className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium disabled:opacity-50">
                   {saving ? "Guardando..." : "Guardar cambios"}
                 </button>
               </div>
