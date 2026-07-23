@@ -106,7 +106,7 @@ export default async function Home() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6">
             {services.map((service) => (
-              <ServiceCard key={service.id} service={service} />
+              <ServiceCard key={service.id} service={service} linked={!!session} />
             ))}
           </div>
 
@@ -137,8 +137,8 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── Featured Professionals ── */}
-      <section className="py-16 md:py-20 bg-white dark:bg-zinc-950">
+      {/* ── Featured Professionals — solo para usuarios logueados ── */}
+      {session && <section className="py-16 md:py-20 bg-white dark:bg-zinc-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-10">
             <div>
@@ -169,7 +169,7 @@ export default async function Home() {
             </Link>
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* ── How it Works ── */}
       <section className="py-16 md:py-20 bg-zinc-50 dark:bg-zinc-900">
