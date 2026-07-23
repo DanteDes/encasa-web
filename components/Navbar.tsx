@@ -137,7 +137,7 @@ export default function Navbar() {
                             {(["disponible", "ocupado", "no-disponible"] as AvailStatus[]).map((s) => (
                               <button
                                 key={s}
-                                onClick={() => { setAvailability(s); writeAvailability(s); }}
+                                onClick={() => { setAvailability(s); writeAvailability(s); setIsUserMenuOpen(false); }}
                                 className={`w-full flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-sm transition-colors ${
                                   availability === s
                                     ? "bg-zinc-100 dark:bg-zinc-800"
