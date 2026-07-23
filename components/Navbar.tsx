@@ -239,7 +239,11 @@ export default function Navbar() {
                   {isProfessional && (
                     <div className="px-3 pb-2 mb-1">
                       <div className="flex gap-2">
-                        {(["disponible", "ocupado", "no-disponible"] as AvailStatus[]).map((s) => (
+                        {([
+                          { value: "disponible" as AvailStatus,    short: "Disponible" },
+                          { value: "ocupado" as AvailStatus,       short: "Ocupado"    },
+                          { value: "no-disponible" as AvailStatus, short: "Ausente"    },
+                        ]).map(({ value: s, short }) => (
                           <button
                             key={s}
                             onClick={() => { setAvailability(s); writeAvailability(s); }}
@@ -250,7 +254,7 @@ export default function Navbar() {
                             }`}
                           >
                             <span className={`w-2 h-2 rounded-full ${STATUS_DOT[s]}`} />
-                            {STATUS_LABEL[s].split(" ")[0]}
+                            {short}
                           </button>
                         ))}
                       </div>
