@@ -72,7 +72,7 @@ export default function ProfessionalSetupPage() {
       location: (data.get("workArea") as string) || null,
       description: (data.get("description") as string) || null,
       experience: experienceRaw,
-      availability: (data.get("availability") as string) || "disponible",
+      availability: (existing?.availability as string) ?? "disponible",
       tags: selectedTags,
     };
 
@@ -245,18 +245,6 @@ export default function ProfessionalSetupPage() {
                 placeholder="Contanos sobre tu experiencia, especialidades y por qué los clientes deberían elegirte..."
                 className={`${inputClass} resize-none`}
               />
-            </div>
-
-            {/* Disponibilidad */}
-            <div>
-              <label htmlFor="availability" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                Estado de disponibilidad
-              </label>
-              <select id="availability" name="availability" defaultValue={existing?.availability ?? "disponible"} className={inputClass}>
-                <option value="disponible">Disponible ahora</option>
-                <option value="ocupado">Ocupado</option>
-                <option value="no-disponible">No disponible</option>
-              </select>
             </div>
 
             {/* Tags */}
