@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
+import Credentials from "next-auth/providers/credentials";
 
 const FIVE_MINUTES = 5 * 60 * 1000;
 
@@ -14,6 +15,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           access_type: "offline",
           response_type: "code",
         },
+      },
+    }),
+    Credentials({
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Contraseña", type: "password" },
+      },
+      async authorize(credentials) {
+        const { email, password } = credentials as { email: string; password: string };
+        if (!email || !password) return null;
+
+        // TODO: reemplazar por llamada real al backend cuando esté disponible
+        // const res = await fetch(`${apiUrl}/auth/login`, { method: "POST", body: JSON.stringify({ email, password }) });
+        // if (!res.ok) return null;
+        // return res.json();
+
+        const DEMO_USERS = [
+          { id: "1", email: "demo@encasa.com", password: "demo1234", name: "Demo Usuario", role: "client" },
+          { id: "2", email: "admin@encasa.com", password: "admin1234", name: "Admin EnCasa", role: "professional" },
+        ];
+
+        const user = DEMO_USERS.find(
+          (u) => u.email === email && u.password === password
+        );
+        if (!user) return null;
+
+        return { id: user.id, email: user.email, name: user.name, role: user.role };
       },
     }),
   ],
