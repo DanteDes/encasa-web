@@ -13,6 +13,7 @@ export default function ProfessionalCard({
   professional,
 }: ProfessionalCardProps) {
   const { data: session } = useSession();
+  const isProfessional = session?.user?.role === "professional";
   const availabilityConfig = {
     disponible: {
       color: "bg-green-500",
@@ -143,7 +144,7 @@ export default function ProfessionalCard({
           >
             Ver Perfil
           </Link>
-          {session?.user && <FavoriteButton id={professional.id} />}
+          {session?.user && !isProfessional && <FavoriteButton id={professional.id} />}
         </div>
 
         {/* Badge de respuesta rápida */}

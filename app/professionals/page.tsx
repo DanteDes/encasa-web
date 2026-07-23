@@ -8,9 +8,12 @@ import { getProfessionals, getServices } from "@/lib/api";
 import type { Professional, Service } from "@/types";
 import Link from "next/link";
 import ProfessionalCardSkeleton from "@/components/ProfessionalCardSkeleton";
+import { useSession } from "next-auth/react";
 
 function ProfessionalsContent() {
   const searchParams = useSearchParams();
+  const { data: session } = useSession();
+  const isProfessional = session?.user?.role === "professional";
   const [all, setAll] = useState<Professional[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,10 +58,12 @@ function ProfessionalsContent() {
             <span className="text-zinc-900 dark:text-white">Profesionales</span>
           </nav>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-zinc-900 dark:text-white">
-            Encontrá tu Profesional
+            {isProfessional ? "El mercado" : "Encontrá tu Profesional"}
           </h1>
           <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-3xl">
-            Explorá perfiles verificados, compará precios y elegí el mejor profesional para tu proyecto
+            {isProfessional
+              ? "Compará precios, servicios y calificaciones con otros profesionales de Mar del Plata."
+              : "Explorá perfiles verificados, compará precios y elegí el mejor profesional para tu proyecto"}
           </p>
         </div>
 

@@ -38,7 +38,9 @@ export default function Navbar() {
                 {/* Links solo para logueados */}
                 <Link href="/services" className={navLink}>Servicios</Link>
                 <Link href="/professionals" className={navLink}>Profesionales</Link>
-                <Link href="/favorites" className={navLink}>Favoritos</Link>
+                {!isProfessional && (
+                  <Link href="/favorites" className={navLink}>Favoritos</Link>
+                )}
 
                 {/* Extras para profesionales */}
                 {isProfessional && (
@@ -138,7 +140,9 @@ export default function Navbar() {
                 <>
                   <MobileLink href="/services" onClick={() => setIsMenuOpen(false)}>Servicios</MobileLink>
                   <MobileLink href="/professionals" onClick={() => setIsMenuOpen(false)}>Profesionales</MobileLink>
-                  <MobileLink href="/favorites" onClick={() => setIsMenuOpen(false)}>Favoritos</MobileLink>
+                  {!isProfessional && (
+                    <MobileLink href="/favorites" onClick={() => setIsMenuOpen(false)}>Favoritos</MobileLink>
+                  )}
 
                   <hr className="border-zinc-200 dark:border-zinc-800 my-1" />
                   <div className="flex items-center gap-3 px-2 py-2">
