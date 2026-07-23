@@ -23,10 +23,10 @@ export default function Footer() {
             {/* Newsletter */}
             <div>
               <h4 className="text-white font-semibold mb-1 text-sm">
-                Tips y novedades para tu hogar
+                Novedades de EnCasa
               </h4>
               <p className="text-xs text-zinc-500 mb-3">
-                Recibí consejos de mantenimiento y ofertas exclusivas.
+                Actualizaciones de la plataforma y novedades del mercado.
               </p>
               <NewsletterForm />
             </div>

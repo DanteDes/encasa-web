@@ -140,7 +140,7 @@ export default function ProfessionalHome({ session }: { session: Session }) {
               </p>
             </div>
             <Link
-              href="/professionals"
+              href="/professional/preview"
               className="shrink-0 px-6 py-3 bg-white text-zinc-900 rounded-xl font-semibold text-sm hover:bg-zinc-100 transition-colors"
             >
               Ver cómo aparezco
