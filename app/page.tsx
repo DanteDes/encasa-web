@@ -49,9 +49,11 @@ export default async function Home() {
               Verificados, con reseñas reales y disponibles ahora.
             </p>
 
-            <div className="max-w-2xl mx-auto mb-6">
-              <SearchBar placeholder="Ej: electricista, plomero, pintor..." />
-            </div>
+            {session && (
+              <div className="max-w-2xl mx-auto mb-6">
+                <SearchBar placeholder="Ej: electricista, plomero, pintor..." />
+              </div>
+            )}
 
             <p className="text-sm text-zinc-500">
               ⚡ Respuesta en menos de 2 horas
