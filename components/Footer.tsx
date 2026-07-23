@@ -1,12 +1,16 @@
 import Link from "next/link";
 import Logo from "./Logo";
 import NewsletterForm from "./NewsletterForm";
+import { auth } from "@/auth";
 
-export default function Footer() {
+export default async function Footer() {
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
+
   return (
     <footer className="bg-zinc-900 text-zinc-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-10">
+        <div className={`grid grid-cols-1 gap-10 ${isLoggedIn ? "md:grid-cols-5" : "md:grid-cols-3"}`}>
 
           {/* Brand + newsletter — takes 2 cols */}
           <div className="md:col-span-2 space-y-6">
@@ -32,34 +36,37 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Servicios */}
-          <div>
-            <h3 className="font-semibold text-white mb-4 text-sm uppercase tracking-wide">
-              Servicios
-            </h3>
-            <ul className="space-y-2.5 text-sm">
-              <li><Link href="/services" className="hover:text-white transition-colors">Ver todos</Link></li>
-              <li><Link href="/services/electricidad" className="hover:text-white transition-colors">Electricidad</Link></li>
-              <li><Link href="/services/plomeria" className="hover:text-white transition-colors">Plomería</Link></li>
-              <li><Link href="/services/carpinteria" className="hover:text-white transition-colors">Carpintería</Link></li>
-              <li><Link href="/services/pintura" className="hover:text-white transition-colors">Pintura</Link></li>
-              <li><Link href="/services/limpieza" className="hover:text-white transition-colors">Limpieza</Link></li>
-            </ul>
-          </div>
+          {/* Servicios — solo logueados */}
+          {isLoggedIn && (
+            <div>
+              <h3 className="font-semibold text-white mb-4 text-sm uppercase tracking-wide">
+                Servicios
+              </h3>
+              <ul className="space-y-2.5 text-sm">
+                <li><Link href="/services" className="hover:text-white transition-colors">Ver todos</Link></li>
+                <li><Link href="/services/electricidad" className="hover:text-white transition-colors">Electricidad</Link></li>
+                <li><Link href="/services/plomeria" className="hover:text-white transition-colors">Plomería</Link></li>
+                <li><Link href="/services/carpinteria" className="hover:text-white transition-colors">Carpintería</Link></li>
+                <li><Link href="/services/pintura" className="hover:text-white transition-colors">Pintura</Link></li>
+                <li><Link href="/services/limpieza" className="hover:text-white transition-colors">Limpieza</Link></li>
+              </ul>
+            </div>
+          )}
 
-          {/* Empresa */}
-          <div>
-            <h3 className="font-semibold text-white mb-4 text-sm uppercase tracking-wide">
-              Empresa
-            </h3>
-            <ul className="space-y-2.5 text-sm">
-              <li><Link href="/how-it-works" className="hover:text-white transition-colors">Cómo funciona</Link></li>
-              <li><Link href="/professionals" className="hover:text-white transition-colors">Profesionales</Link></li>
-              <li><Link href="/register" className="hover:text-white transition-colors">Registrarse</Link></li>
-              <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
-              <li><Link href="/contact" className="hover:text-white transition-colors">Contacto</Link></li>
-            </ul>
-          </div>
+          {/* Empresa — solo logueados */}
+          {isLoggedIn && (
+            <div>
+              <h3 className="font-semibold text-white mb-4 text-sm uppercase tracking-wide">
+                Empresa
+              </h3>
+              <ul className="space-y-2.5 text-sm">
+                <li><Link href="/how-it-works" className="hover:text-white transition-colors">Cómo funciona</Link></li>
+                <li><Link href="/professionals" className="hover:text-white transition-colors">Profesionales</Link></li>
+                <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
+                <li><Link href="/contact" className="hover:text-white transition-colors">Contacto</Link></li>
+              </ul>
+            </div>
+          )}
 
           {/* Legal */}
           <div>
