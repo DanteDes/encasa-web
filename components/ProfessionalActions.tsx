@@ -1,10 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import FavoriteButton from "@/components/FavoriteButton";
 
 export default function ProfessionalActions({ id, name }: { id: number; name: string }) {
+  const { data: session } = useSession();
   const [showContact, setShowContact] = useState(false);
+  const isProfessional = session?.user?.role === "professional";
 
   const waMessage = encodeURIComponent(`Hola, quiero contactar al profesional ${name} a través de EnCasa.`);
 
@@ -13,11 +16,11 @@ export default function ProfessionalActions({ id, name }: { id: number; name: st
       <div className="flex gap-3">
         <button
           onClick={() => setShowContact(true)}
-          className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors font-medium"
         >
           Contactar
         </button>
-        <FavoriteButton id={id} />
+        {session?.user && !isProfessional && <FavoriteButton id={id} />}
       </div>
 
       {showContact && (
