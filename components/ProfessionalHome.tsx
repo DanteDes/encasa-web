@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Session } from "next-auth";
 import ProfessionalProfileBanner from "./ProfessionalProfileBanner";
-import AvailabilityPicker from "./AvailabilityPicker";
 
 const tips: { icon: string; title: string; desc: string; href: string | null; cta: string | null }[] = [
   {
@@ -62,7 +61,6 @@ export default function ProfessionalHome({ session }: { session: Session }) {
                 Tu perfil está activo en EnCasa.
               </p>
             </div>
-            <AvailabilityPicker />
           </div>
         </div>
       </section>
