@@ -15,15 +15,14 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const services = await getServices();
-  const service = services.find((s) => s.id === id);
-  if (!service) return {};
+  const s = staticServices.find((s) => s.id === id);
+  if (!s) return {};
   return {
-    title: `${service.name} en Mar del Plata — EnCasa`,
-    description: `Encontrá profesionales de ${service.name} en Mar del Plata. Verificados, con reseñas reales y disponibles ahora. ${service.description}`,
+    title: `${s.name} en Mar del Plata — EnCasa`,
+    description: `Encontrá profesionales de ${s.name} en Mar del Plata. Verificados, con reseñas reales y disponibles ahora. ${s.description}`,
     openGraph: {
-      title: `${service.name} en Mar del Plata — EnCasa`,
-      description: `Profesionales de ${service.name} verificados para tu hogar.`,
+      title: `${s.name} en Mar del Plata — EnCasa`,
+      description: `Profesionales de ${s.name} verificados para tu hogar.`,
     },
   };
 }

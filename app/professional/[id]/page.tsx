@@ -16,18 +16,14 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const mock = mockProfessionals.find((p) => p.id === Number(id));
-  let professional: Professional | undefined = mock;
-  try {
-    professional = await apiFetch<Professional>(`/professionals/${id}`);
-  } catch {}
-  if (!professional) return {};
+  const p = mockProfessionals.find((p) => p.id === Number(id));
+  if (!p) return {};
   return {
-    title: `${professional.name} — ${professional.service} en Mar del Plata | EnCasa`,
-    description: `${professional.name}: ${professional.service} en Mar del Plata. ${professional.experience ? `${professional.experience} años de experiencia.` : ""} ${professional.description?.slice(0, 120) ?? ""}`,
+    title: `${p.name} — ${p.service} en Mar del Plata | EnCasa`,
+    description: `${p.name}: ${p.service} en Mar del Plata. ${p.experience ? `${p.experience} años de experiencia. ` : ""}${p.description?.slice(0, 120) ?? ""}`,
     openGraph: {
-      title: `${professional.name} — ${professional.service} | EnCasa`,
-      description: professional.description ?? `Profesional de ${professional.service} en Mar del Plata.`,
+      title: `${p.name} — ${p.service} | EnCasa`,
+      description: p.description ?? `Profesional de ${p.service} en Mar del Plata.`,
     },
   };
 }

@@ -17,15 +17,26 @@ export async function apiFetch<T>(
     ...(extra as Record<string, string>),
   };
 
-  const res = await fetch(`${BASE_URL}${path}`, { ...rest, headers });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 2000);
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || `HTTP ${res.status}`);
+  try {
+    const res = await fetch(`${BASE_URL}${path}`, {
+      ...rest,
+      headers,
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || `HTTP ${res.status}`);
+    }
+
+    if (res.status === 204) return undefined as T;
+    return res.json() as Promise<T>;
+  } finally {
+    clearTimeout(timeout);
   }
-
-  if (res.status === 204) return undefined as T;
-  return res.json() as Promise<T>;
 }
 
 // ── Safe server-side fetchers (fall back to mock data when backend is unavailable) ──
