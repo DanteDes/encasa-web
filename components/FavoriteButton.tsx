@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const STORAGE_KEY = "encasa_favorites";
 
@@ -28,13 +30,19 @@ function toggleFavorite(id: number): boolean {
 }
 
 export default function FavoriteButton({ id }: { id: number }) {
+  const { data: session } = useSession();
+  const router = useRouter();
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    setSaved(getFavorites().includes(id));
-  }, [id]);
+    if (session?.user) setSaved(getFavorites().includes(id));
+  }, [id, session]);
 
   function handleClick() {
+    if (!session?.user) {
+      router.push("/auth/signin");
+      return;
+    }
     const nowSaved = toggleFavorite(id);
     setSaved(nowSaved);
   }
@@ -42,7 +50,7 @@ export default function FavoriteButton({ id }: { id: number }) {
   return (
     <button
       onClick={handleClick}
-      title={saved ? "Quitar de favoritos" : "Guardar en favoritos"}
+      title={session?.user ? (saved ? "Quitar de favoritos" : "Guardar en favoritos") : "Iniciá sesión para guardar favoritos"}
       className={`px-4 py-3 border-2 rounded-xl transition-colors font-medium ${
         saved
           ? "border-orange-500 bg-orange-50 dark:bg-orange-950/20 text-orange-500"

@@ -223,22 +223,15 @@ export default async function Home() {
             Más de 120 profesionales esperando tu consulta
           </p>
 
-          {/* Secondary CTAs */}
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <span className="text-zinc-600 text-sm">o también podés:</span>
+          {/* Secondary CTA */}
+          <div className="mt-6">
             <a
-              href="https://wa.me/5492236000000"
+              href="https://wa.me/5492235016610"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
+              className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
             >
               <span>📱</span> Escribinos por WhatsApp
-            </a>
-            <a
-              href="mailto:hola@encasa.app"
-              className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
-            >
-              <span>✉️</span> Enviarnos un email
             </a>
           </div>
         </div>

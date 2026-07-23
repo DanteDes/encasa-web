@@ -38,7 +38,7 @@ export default function ProfessionalActions({ id, name }: { id: number; name: st
             </p>
             <div className="flex gap-3">
               <a
-                href={`https://wa.me/5492236000000?text=${waMessage}`}
+                href={`https://wa.me/5492235016610?text=${waMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 bg-green-500 text-white px-4 py-3 rounded-lg text-center hover:bg-green-600 transition-colors font-medium"

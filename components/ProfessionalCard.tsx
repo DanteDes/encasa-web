@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { Professional } from "@/types";
 import FavoriteButton from "@/components/FavoriteButton";
+import { useSession } from "next-auth/react";
 
 interface ProfessionalCardProps {
   professional: Professional;
@@ -9,6 +12,7 @@ interface ProfessionalCardProps {
 export default function ProfessionalCard({
   professional,
 }: ProfessionalCardProps) {
+  const { data: session } = useSession();
   const availabilityConfig = {
     disponible: {
       color: "bg-green-500",
@@ -139,7 +143,7 @@ export default function ProfessionalCard({
           >
             Ver Perfil
           </Link>
-          <FavoriteButton id={professional.id} />
+          {session?.user && <FavoriteButton id={professional.id} />}
         </div>
 
         {/* Badge de respuesta rápida */}
