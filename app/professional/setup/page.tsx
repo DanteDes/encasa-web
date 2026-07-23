@@ -51,21 +51,22 @@ export default function ProfessionalSetupPage() {
       availability: "disponible",
     };
 
-    try {
-      const { apiFetch } = await import("@/lib/api");
-      await apiFetch("/professionals/me", {
-        method: "POST",
-        token: session!.user.backendToken,
-        body: JSON.stringify(body),
-      });
-      router.push("/dashboard");
-    } catch {
-      // Backend no disponible — guardamos localmente y mostramos éxito
-      localStorage.setItem("encasa_prof_profile", JSON.stringify(body));
-      setSaved(true);
-    } finally {
-      setLoading(false);
+    // Guardar localmente siempre (funciona sin backend)
+    localStorage.setItem("encasa_prof_profile", JSON.stringify(body));
+
+    // Intentar sincronizar con backend en segundo plano (sin bloquear la UX)
+    if (session!.user.backendToken) {
+      import("@/lib/api").then(({ apiFetch }) =>
+        apiFetch("/professionals/me", {
+          method: "POST",
+          token: session!.user.backendToken,
+          body: JSON.stringify(body),
+        }).catch(() => {})
+      );
     }
+
+    setLoading(false);
+    setSaved(true);
   }
 
   if (saved) {
