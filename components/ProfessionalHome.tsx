@@ -86,7 +86,7 @@ export default function ProfessionalHome({ session }: { session: Session }) {
       </section>
 
       {/* ── Acciones rápidas ── */}
-      <section className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <section className="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Link
             href="/professional/setup"
