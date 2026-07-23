@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import Logo from "./Logo";
+import { getStoredAvatar, onAvatarUpdated } from "@/lib/avatar";
 
 const navLink = "text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors text-sm font-medium";
 
@@ -14,6 +15,12 @@ export default function Navbar() {
 
   const isProfessional = session?.user?.role === "professional";
   const isLoggedIn = !!session?.user;
+  const [customAvatar, setCustomAvatar] = useState<string | null>(null);
+
+  useEffect(() => {
+    setCustomAvatar(getStoredAvatar());
+    return onAvatarUpdated(setCustomAvatar);
+  }, []);
 
   return (
     <nav className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 sticky top-0 z-50">
@@ -52,11 +59,11 @@ export default function Navbar() {
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                     className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                   >
-                    {session.user.image ? (
+                    {customAvatar ?? session.user.image ? (
                       <img
-                        src={session.user.image}
+                        src={customAvatar ?? session.user.image!}
                         alt={session.user.name ?? "User"}
-                        className="w-8 h-8 rounded-full"
+                        className="w-8 h-8 rounded-full object-cover"
                       />
                     ) : (
                       <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-sm font-bold text-zinc-600 dark:text-zinc-300">

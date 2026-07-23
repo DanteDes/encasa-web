@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import { UserProfile } from "@/types";
 import Link from "next/link";
+import AvatarUpload from "@/components/AvatarUpload";
 
 function buildProfileFromSession(user: { name?: string | null; email?: string | null; image?: string | null; role?: string }): UserProfile {
   return {
@@ -93,13 +94,14 @@ export default function ProfilePage() {
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 shadow-lg">
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-center gap-4">
-              {session?.user.image ? (
-                <img src={session.user.image} alt={profile.name ?? "User"} className="w-20 h-20 rounded-full" />
-              ) : (
-                <div className="w-20 h-20 bg-zinc-200 dark:bg-zinc-700 rounded-full flex items-center justify-center text-3xl">
-                  👤
-                </div>
-              )}
+              <div className="flex flex-col items-center gap-1">
+                <AvatarUpload
+                  sessionImage={session?.user.image}
+                  name={profile.name ?? profile.email}
+                  size={80}
+                />
+                <span className="text-xs text-zinc-400">Cambiar foto</span>
+              </div>
               <div>
                 <h2 className="text-xl font-semibold text-zinc-900 dark:text-white">{profile.name ?? profile.email}</h2>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">{profile.email}</p>
