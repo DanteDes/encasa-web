@@ -58,7 +58,7 @@ export default function ProfessionalHome({ session }: { session: Session }) {
                 Bienvenido, {name}
               </h1>
               <p className="text-zinc-400">
-                Tu perfil está activo en EnCasa. Así vas con tu actividad de esta semana.
+                Tu perfil está activo en EnCasa.
               </p>
             </div>
             <div className="flex gap-3">
@@ -82,6 +82,9 @@ export default function ProfessionalHome({ session }: { session: Session }) {
       {/* ── Stats ── */}
       <section className="py-8 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-6">
+            Así vas con tu actividad de esta semana
+          </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {stats.map(({ label, value, sub }) => (
               <div key={label} className="text-center py-2">
