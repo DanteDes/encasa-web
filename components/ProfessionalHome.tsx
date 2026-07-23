@@ -21,8 +21,8 @@ const tips: { icon: string; title: string; desc: string; href: string | null; ct
     icon: "⭐",
     title: "Pedí reseñas",
     desc: "Después de cada trabajo terminado, pedile al cliente que te califique. Las reseñas son tu mejor carta de presentación.",
-    href: "/professionals",
-    cta: "Ver tu posición",
+    href: null,
+    cta: null,
   },
   {
     icon: "📍",
