@@ -5,9 +5,17 @@ import TestimonialsSection from "@/components/TestimonialsSection";
 import FAQSection from "@/components/FAQSection";
 import BlogSection from "@/components/BlogSection";
 import ProfessionalCard from "@/components/ProfessionalCard";
+import ProfessionalHome from "@/components/ProfessionalHome";
 import { getServices, getProfessionals } from "@/lib/api";
+import { auth } from "@/auth";
 
 export default async function Home() {
+  const session = await auth();
+
+  if (session?.user?.role === "professional") {
+    return <ProfessionalHome session={session} />;
+  }
+
   const [services, allProfessionals] = await Promise.all([
     getServices(),
     getProfessionals(),
