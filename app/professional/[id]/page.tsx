@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { apiFetch } from "@/lib/api";
 import { professionals as mockProfessionals } from "@/data/professionals";
+import { getMockReviewsForProfessional } from "@/data/reviews";
 import type { Professional, Review } from "@/types";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProfessionalActions from "@/components/ProfessionalActions";
 import ProfServiceTags from "@/components/ProfServiceTags";
+import ReviewForm from "@/components/ReviewForm";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -58,7 +60,7 @@ export default async function ProfessionalDetailPage({ params }: PageProps) {
   try {
     reviews = await apiFetch<Review[]>(`/reviews/professional/${id}`);
   } catch {
-    reviews = [];
+    reviews = getMockReviewsForProfessional(Number(id));
   }
 
   return (
@@ -193,6 +195,7 @@ export default async function ProfessionalDetailPage({ params }: PageProps) {
               ))}
             </div>
           )}
+          <ReviewForm professionalId={professional!.id} />
         </div>
       </div>
     </div>
