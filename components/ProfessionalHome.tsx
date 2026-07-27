@@ -47,7 +47,7 @@ export default function ProfessionalHome({ session }: { session: Session }) {
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
 
       {/* ── Header ── */}
-      <section className="bg-zinc-950 text-white py-12 md:py-16">
+      <section className="bg-zinc-950 text-white pt-10 pb-6 md:pt-12 md:pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
@@ -61,6 +61,27 @@ export default function ProfessionalHome({ session }: { session: Session }) {
                 Tu perfil está activo en EnCasa.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Tu perfil en la plataforma ── */}
+      <section className="pt-6 pb-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="bg-zinc-900 dark:bg-zinc-800 rounded-2xl p-8 text-white">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div>
+              <h2 className="text-xl font-bold mb-2">¿Cómo te ven los clientes?</h2>
+              <p className="text-zinc-400 text-sm max-w-lg">
+                Tu perfil aparece en la búsqueda de clientes junto a otros profesionales.
+                Cuanto más completo esté, más chances tenés de que te elijan.
+              </p>
+            </div>
+            <Link
+              href="/professional/preview"
+              className="shrink-0 px-6 py-3 bg-white text-zinc-900 rounded-xl font-semibold text-sm hover:bg-zinc-100 transition-colors"
+            >
+              Ver cómo aparezco
+            </Link>
           </div>
         </div>
       </section>
@@ -125,27 +146,6 @@ export default function ProfessionalHome({ session }: { session: Session }) {
               </div>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* ── Tu perfil en la plataforma ── */}
-      <section className="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="bg-zinc-900 dark:bg-zinc-800 rounded-2xl p-8 text-white">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div>
-              <h2 className="text-xl font-bold mb-2">¿Cómo te ven los clientes?</h2>
-              <p className="text-zinc-400 text-sm max-w-lg">
-                Tu perfil aparece en la búsqueda de clientes junto a otros profesionales.
-                Cuanto más completo esté, más chances tenés de que te elijan.
-              </p>
-            </div>
-            <Link
-              href="/professional/preview"
-              className="shrink-0 px-6 py-3 bg-white text-zinc-900 rounded-xl font-semibold text-sm hover:bg-zinc-100 transition-colors"
-            >
-              Ver cómo aparezco
-            </Link>
-          </div>
         </div>
       </section>
 
