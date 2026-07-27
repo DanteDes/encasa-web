@@ -25,6 +25,7 @@ export default function ProfessionalSetupPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [syncedToBackend, setSyncedToBackend] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [existing, setExisting] = useState<SavedProfile | null>(null);
@@ -79,15 +80,20 @@ export default function ProfessionalSetupPage() {
     // Guardar localmente siempre (funciona sin backend)
     localStorage.setItem("encasa_prof_profile", JSON.stringify(body));
 
-    // Intentar sincronizar con backend en segundo plano (sin bloquear la UX)
+    // Sincronizar con backend
     if (session!.user.backendToken) {
-      import("@/lib/api").then(({ apiFetch }) =>
-        apiFetch("/professionals/me", {
-          method: "POST",
-          token: session!.user.backendToken,
-          body: JSON.stringify(body),
-        }).catch(() => {})
-      );
+      import("@/lib/api")
+        .then(({ apiFetch }) =>
+          apiFetch("/professionals/me", {
+            method: "POST",
+            token: session!.user.backendToken,
+            body: JSON.stringify(body),
+          })
+        )
+        .then(() => setSyncedToBackend(true))
+        .catch(() => setSyncedToBackend(false));
+    } else {
+      setSyncedToBackend(false);
     }
 
     setLoading(false);
@@ -100,9 +106,27 @@ export default function ProfessionalSetupPage() {
         <div className="max-w-md w-full text-center">
           <div className="text-6xl mb-4">✅</div>
           <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2">¡Perfil guardado!</h2>
-          <p className="text-zinc-600 dark:text-zinc-400 mb-6">
+          <p className="text-zinc-600 dark:text-zinc-400 mb-4">
             Tu perfil profesional fue configurado correctamente.
           </p>
+
+          {/* Sync status */}
+          {syncedToBackend === true && (
+            <div className="mb-6 flex items-center justify-center gap-2 text-sm text-green-600 dark:text-green-400">
+              <span>🟢</span>
+              <span>Sincronizado con el servidor. Tu perfil es visible para los clientes.</span>
+            </div>
+          )}
+          {syncedToBackend === false && (
+            <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded-xl text-sm text-yellow-800 dark:text-yellow-300 text-left">
+              <p className="font-semibold mb-1">⚠️ Guardado solo localmente</p>
+              <p>No se pudo conectar con el servidor. Tu perfil está guardado en este dispositivo pero <strong>no es visible para los clientes</strong> todavía. Asegurate de que el backend esté corriendo y volvé a guardar.</p>
+            </div>
+          )}
+          {syncedToBackend === null && (
+            <div className="mb-6 text-sm text-zinc-400">Verificando sincronización...</div>
+          )}
+
           <Link
             href="/dashboard"
             className="inline-block bg-orange-500 text-white px-6 py-3 rounded-xl hover:bg-orange-600 transition-colors font-semibold"
