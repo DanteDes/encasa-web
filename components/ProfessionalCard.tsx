@@ -47,16 +47,32 @@ export default function ProfessionalCard({
               {config.text}
             </span>
           </div>
-          {professional.verified && (
-            <div className="flex items-center gap-1 bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded-full">
-              <span className="text-blue-600 dark:text-blue-400 text-xs">
-                ✓
-              </span>
-              <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
-                Verificado
-              </span>
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            {professional.verified && (
+              <div className="flex items-center gap-1 bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded-full">
+                <span className="text-blue-600 dark:text-blue-400 text-xs">✓</span>
+                <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                  Verificado
+                </span>
+              </div>
+            )}
+            {professional.matriculado != null && (
+              professional.matriculado ? (
+                <div className="flex items-center gap-1 bg-green-100 dark:bg-green-900 px-2 py-1 rounded-full">
+                  <span className="text-green-600 dark:text-green-400 text-xs">✓</span>
+                  <span className="text-xs font-medium text-green-700 dark:text-green-300">
+                    Matriculado
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-700 px-2 py-1 rounded-full">
+                  <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                    Sin matrícula
+                  </span>
+                </div>
+              )
+            )}
+          </div>
         </div>
       </div>
 
@@ -144,7 +160,7 @@ export default function ProfessionalCard({
           >
             Ver Perfil
           </Link>
-          {session?.user && !isProfessional && <FavoriteButton id={professional.id} />}
+          {session?.user && !isProfessional && <FavoriteButton id={professional.id} name={professional.name} />}
         </div>
 
         {/* Badge de respuesta rápida */}

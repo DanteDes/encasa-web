@@ -20,6 +20,7 @@ export interface Professional {
   description: string | null;
   experience: number | null;
   verified: boolean;
+  matriculado?: boolean;
   availability: string;
 }
 
