@@ -4,6 +4,18 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import FavoriteButton from "@/components/FavoriteButton";
 
+const CONTACTS_KEY = "encasa_client_contacts";
+
+function saveContact(professionalId: number) {
+  try {
+    const raw = localStorage.getItem(CONTACTS_KEY);
+    const contacts: number[] = raw ? JSON.parse(raw) : [];
+    if (!contacts.includes(professionalId)) {
+      localStorage.setItem(CONTACTS_KEY, JSON.stringify([...contacts, professionalId]));
+    }
+  } catch {}
+}
+
 export default function ProfessionalActions({ id, name }: { id: number; name: string }) {
   const { data: session } = useSession();
   const [showContact, setShowContact] = useState(false);
@@ -46,6 +58,7 @@ export default function ProfessionalActions({ id, name }: { id: number; name: st
                 href={`https://wa.me/5492235016610?text=${waMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => saveContact(id)}
                 className="flex-1 bg-green-500 text-white px-4 py-3 rounded-lg text-center hover:bg-green-600 transition-colors font-medium"
               >
                 Ir a WhatsApp

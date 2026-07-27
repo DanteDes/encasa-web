@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ToastProvider";
 
 const STORAGE_KEY = "encasa_favorites";
 
@@ -30,9 +31,10 @@ function toggleFavorite(id: number): boolean {
   return idx === -1;
 }
 
-export default function FavoriteButton({ id }: { id: number }) {
+export default function FavoriteButton({ id, name }: { id: number; name?: string }) {
   const { data: session } = useSession();
   const router = useRouter();
+  const { showToast } = useToast();
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -46,6 +48,11 @@ export default function FavoriteButton({ id }: { id: number }) {
     }
     const nowSaved = toggleFavorite(id);
     setSaved(nowSaved);
+    if (nowSaved) {
+      showToast(name ? `${name} agregado a favoritos` : "Agregado a favoritos", "success");
+    } else {
+      showToast(name ? `${name} eliminado de favoritos` : "Eliminado de favoritos", "remove");
+    }
   }
 
   return (
