@@ -33,14 +33,13 @@ function buildProfileFromSession(user: {
   role?: string;
 }): UserProfile {
   return {
-    id: 0,
+    id: "",
     email: user.email ?? "",
     name: user.name ?? null,
-    phone: null,
-    avatar: user.image ?? null,
-    bio: null,
-    location: null,
+    picture: user.image ?? null,
     role: user.role ?? "client",
+    hasProfessionalProfile: false,
+    emailNotifications: true,
   };
 }
 
@@ -100,9 +99,6 @@ export default function ProfilePage() {
         token: session!.user.backendToken,
         body: JSON.stringify({
           name: data.get("name") || null,
-          phone: data.get("phone") || null,
-          location: data.get("location") || null,
-          bio: data.get("bio") || null,
         }),
       });
       setProfile(updated);
@@ -114,9 +110,6 @@ export default function ProfilePage() {
           ? {
               ...prev,
               name: (data.get("name") as string) || prev.name,
-              phone: (data.get("phone") as string) || prev.phone,
-              location: (data.get("location") as string) || prev.location,
-              bio: (data.get("bio") as string) || prev.bio,
             }
           : prev
       );
@@ -190,23 +183,9 @@ export default function ProfilePage() {
 
           {editing ? (
             <form onSubmit={handleSave} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Nombre</label>
-                  <input name="name" defaultValue={profile.name ?? ""} className={inputClass} />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Teléfono</label>
-                  <input name="phone" defaultValue={profile.phone ?? ""} placeholder="223-000-0000" className={inputClass} />
-                </div>
-              </div>
               <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Ubicación</label>
-                <input name="location" defaultValue={profile.location ?? ""} placeholder="Mar del Plata, Buenos Aires" className={inputClass} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Bio</label>
-                <textarea name="bio" defaultValue={profile.bio ?? ""} rows={3} placeholder="Contanos algo sobre vos..." className={`${inputClass} resize-none`} />
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Nombre</label>
+                <input name="name" defaultValue={profile.name ?? ""} className={inputClass} />
               </div>
               <button type="submit" disabled={saving} className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium disabled:opacity-50">
                 {saving ? "Guardando..." : "Guardar cambios"}
@@ -222,20 +201,6 @@ export default function ProfilePage() {
                 <label className="block text-sm font-medium text-zinc-500 mb-1">Email</label>
                 <div className={fieldClass}>{profile.email}</div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-zinc-500 mb-1">Teléfono</label>
-                <div className={fieldClass}>{profile.phone ?? "—"}</div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-zinc-500 mb-1">Ubicación</label>
-                <div className={fieldClass}>{profile.location ?? "—"}</div>
-              </div>
-              {profile.bio && (
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-zinc-500 mb-1">Bio</label>
-                  <div className={fieldClass}>{profile.bio}</div>
-                </div>
-              )}
             </div>
           )}
         </div>

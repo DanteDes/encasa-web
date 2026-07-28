@@ -38,13 +38,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           if (!res.ok) return null;
 
           const data = await res.json();
-          // data: { token, id, email, name, role }
+          // data: { token, user: { id, email, name, picture, role, hasProfessionalProfile, emailNotifications } }
           return {
-            id: String(data.id),
-            email: data.email,
-            name: data.name,
-            role: data.role,
+            id: data.user.id,
+            email: data.user.email,
+            name: data.user.name,
+            image: data.user.picture,
+            role: data.user.role,
             backendToken: data.token,
+            hasProfessionalProfile: data.user.hasProfessionalProfile,
           };
         } catch {
           // Fallback demo cuando el backend no está disponible
@@ -80,26 +82,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, account, user }) {
       if (user?.role) token.role = user.role;
       if (user?.backendToken) token.backendToken = user.backendToken;
+      if ((user as { hasProfessionalProfile?: boolean })?.hasProfessionalProfile !== undefined) {
+        token.hasProfessionalProfile = (user as { hasProfessionalProfile?: boolean }).hasProfessionalProfile;
+      }
 
       const now = Date.now();
 
       // For Google OAuth (first sign-in): sync with backend
       if (account?.provider === "google") {
         try {
-          const res = await fetch(`${API_URL}/auth/sync`, {
+          const res = await fetch(`${API_URL}/auth/oauth/google`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               email: token.email,
               name: token.name,
-              image: token.picture,
+              picture: token.picture,
+              googleSub: account.providerAccountId ?? null,
+              intent: null,
             }),
             signal: AbortSignal.timeout(3000),
           });
           if (res.ok) {
             const data = await res.json();
+            // data: { token, user: { id, email, name, picture, role, hasProfessionalProfile, emailNotifications } }
             token.backendToken = data.token;
-            token.role = data.role;
+            token.role = data.user.role;
+            token.hasProfessionalProfile = data.user.hasProfessionalProfile;
             token.roleRefreshedAt = now;
           }
         } catch {
@@ -122,6 +131,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           if (profileRes.ok) {
             const profile = await profileRes.json();
             token.role = profile.role;
+            token.hasProfessionalProfile = profile.hasProfessionalProfile;
             token.roleRefreshedAt = now;
           }
         } catch {
@@ -136,6 +146,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.sub as string;
         if (token.backendToken) session.user.backendToken = token.backendToken as string;
         if (token.role) session.user.role = token.role as string;
+        if (token.hasProfessionalProfile !== undefined) {
+          (session.user as { hasProfessionalProfile?: boolean }).hasProfessionalProfile =
+            token.hasProfessionalProfile as boolean;
+        }
       }
       return session;
     },

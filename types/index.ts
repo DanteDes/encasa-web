@@ -35,14 +35,13 @@ export interface Review {
 }
 
 export interface UserProfile {
-  id: number;
+  id: string;
   email: string;
   name: string | null;
-  phone: string | null;
-  avatar: string | null;
-  bio: string | null;
-  location: string | null;
+  picture: string | null;
   role: string;
+  hasProfessionalProfile: boolean;
+  emailNotifications: boolean;
 }
 
 export interface Testimonial {
