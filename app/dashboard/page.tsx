@@ -2,7 +2,6 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import ProfessionalProfileBanner from "@/components/ProfessionalProfileBanner";
-import ProfessionalActivityEmpty from "@/components/ProfessionalActivityEmpty";
 import ClientStatsCards from "@/components/ClientStatsCards";
 
 export default async function DashboardPage() {

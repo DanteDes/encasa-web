@@ -175,6 +175,98 @@ export const blogPosts: BlogPost[] = [
       },
     ],
   },
+  {
+    slug: "precios-pintura-mar-del-plata",
+    category: "Pintura",
+    categoryColor: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
+    emoji: "🎨",
+    title: "¿Cuánto cuesta pintar una habitación en Mar del Plata?",
+    excerpt:
+      "Guía de precios actualizada para pintura interior. Qué factores influyen en el costo y cómo pedir un presupuesto justo.",
+    readTime: "4 min",
+    publishedAt: "2025-12-05",
+    content: [
+      {
+        type: "p",
+        text: "El costo de pintar un ambiente varía bastante según el tamaño, el estado de las paredes, el tipo de pintura y la mano de obra. Acá te damos los rangos de precios más habituales en Mar del Plata para que vayas preparado cuando pidas presupuesto.",
+      },
+      { type: "h2", text: "Precio por m² de mano de obra" },
+      {
+        type: "p",
+        text: "En Mar del Plata, la mano de obra para pintura interior ronda los $4.000 a $8.000 por m² (incluyendo preparación de superficie, masilla si es necesaria y dos manos de pintura). Los precios varían según el profesional y la complejidad del trabajo.",
+      },
+      { type: "h2", text: "Factores que elevan el precio" },
+      {
+        type: "ul",
+        items: [
+          "Paredes con humedad, descascaramiento o grietas (requieren preparación extra)",
+          "Techos: son más trabajosos que las paredes y suelen cobrarse aparte",
+          "Más de dos colores o diseños especiales",
+          "Pintura de alta calidad o lavable (sube el costo del material)",
+          "Mudanza de muebles incluida en el presupuesto",
+        ],
+      },
+      { type: "h2", text: "Cómo pedir un presupuesto justo" },
+      {
+        type: "p",
+        text: "Pedí siempre que el presupuesto detalle mano de obra y materiales por separado. Así podés comparar entre pintores y entender qué incluye cada uno. Desconfiá de presupuestos muy por debajo del promedio: suelen terminar con trabajos de baja calidad o cobros extras al final.",
+      },
+      {
+        type: "tip",
+        text: "Antes de pintar, revisá si hay humedad en las paredes. Pintar sobre humedad es tirar plata: la pintura se levanta en semanas. Primero solucioná el origen de la humedad.",
+      },
+    ],
+  },
+  {
+    slug: "como-preparar-casa-invierno",
+    category: "Mantenimiento",
+    categoryColor: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+    emoji: "🧥",
+    title: "Cómo preparar tu casa para el invierno en Mar del Plata",
+    excerpt:
+      "El frío y la humedad de la costa son un combo exigente para las casas. Estas revisiones previas te ahorran problemas en los meses más fríos.",
+    readTime: "4 min",
+    publishedAt: "2025-11-28",
+    content: [
+      {
+        type: "p",
+        text: "Mar del Plata tiene inviernos húmedos y con vientos que ponen a prueba cualquier hogar. Prepararse antes de que llegue el frío es la diferencia entre pasar el invierno tranquilo o lidiar con humedad, filtraciones y fallas en la calefacción.",
+      },
+      { type: "h2", text: "Revisá la calefacción antes de que la necesites" },
+      {
+        type: "p",
+        text: "Hacé el service de la caldera o los radiadores en otoño, antes de que arranque la demanda. En invierno los técnicos tienen semanas de espera y te quedás sin calefacción mientras esperás turno.",
+      },
+      { type: "h2", text: "Controlá los sellados de ventanas y puertas" },
+      {
+        type: "p",
+        text: "Las corrientes de aire frío entran por sellados gastados o marcos que se contrajeron. Un simple burlón o sellador de silicona puede hacer una gran diferencia en el confort y en la factura de gas.",
+      },
+      { type: "h2", text: "Inspeccioná el techo y las canaletas" },
+      {
+        type: "p",
+        text: "Las lluvias invernales pueden filtrar agua por tejas rotas o canaletas tapadas. Una revisión visual en otoño te permite arreglar problemas antes de que sean urgentes.",
+      },
+      {
+        type: "ul",
+        items: [
+          "Limpiá las canaletas de hojas y suciedad acumulada",
+          "Revisá si hay tejas rotas o desplazadas",
+          "Controlá el estado del sellado en uniones de techo y paredes",
+          "Chequeá que los desagotes pluviales no estén obstruidos",
+        ],
+      },
+      { type: "h2", text: "Humedad: el enemigo número uno" },
+      {
+        type: "p",
+        text: "La humedad por condensación es muy común en Mar del Plata en invierno. Ventilá los ambientes aunque haga frío, usá deshumidificadores en espacios cerrados y revisá si hay manchas nuevas en paredes o cielorrasos.",
+      },
+      {
+        type: "tip",
+        text: "Si ves manchas de humedad en las paredes, llamá a un profesional antes de pintar. Encubrir la humedad sin tratar el origen solo pospone el problema y lo hace más caro.",
+      },
+    ],
+  },
 ];
 
 export function getPost(slug: string): BlogPost | undefined {

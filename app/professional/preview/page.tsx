@@ -69,8 +69,8 @@ export default function ProfessionalPreviewPage() {
           <p className="text-sm text-orange-800 dark:text-orange-300 font-medium">
             👁️ Así ve tu perfil un cliente
           </p>
-          <Link href="/" className="text-xs text-orange-600 dark:text-orange-400 hover:underline font-medium">
-            Volver al inicio
+          <Link href="/dashboard" className="text-xs text-orange-600 dark:text-orange-400 hover:underline font-medium">
+            Volver al dashboard
           </Link>
         </div>
 

@@ -13,9 +13,9 @@ const tips: { icon: string; title: string; desc: string; href: string | null; ct
   {
     icon: "⚡",
     title: "Respondé rápido",
-    desc: "Los clientes suelen elegir al primero que responde. Cuando te contacten por WhatsApp, respondé lo antes que puedas.",
-    href: null,
-    cta: null,
+    desc: "Los clientes suelen elegir al primero que responde. Cuando te contacten, respondé lo antes que puedas.",
+    href: "/solicitudes",
+    cta: "Ver solicitudes",
   },
   {
     icon: "⭐",

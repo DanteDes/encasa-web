@@ -49,11 +49,23 @@ export default async function Home() {
               Verificados, con reseñas reales y disponibles ahora.
             </p>
 
-            {session && (
-              <div className="max-w-2xl mx-auto mb-6">
+            <div className="max-w-2xl mx-auto mb-6">
+              {session ? (
                 <SearchBar placeholder="Ej: electricista, plomero, pintor..." />
-              </div>
-            )}
+              ) : (
+                <Link href="/register" className="group block w-full">
+                  <div className="w-full flex items-center gap-3 px-6 py-4 rounded-full border border-zinc-700 bg-zinc-900/60 text-zinc-500 group-hover:border-orange-500/60 group-hover:bg-zinc-900 transition-all">
+                    <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <span className="flex-1 text-left text-base">Ej: electricista, plomero, pintor...</span>
+                    <span className="text-sm bg-orange-500 group-hover:bg-orange-400 text-white px-4 py-2 rounded-full font-semibold transition-colors whitespace-nowrap">
+                      Registrate gratis →
+                    </span>
+                  </div>
+                </Link>
+              )}
+            </div>
 
             <p className="text-sm text-zinc-500">
               ⚡ Respuesta en menos de 2 horas
