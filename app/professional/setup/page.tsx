@@ -41,8 +41,13 @@ export default function ProfessionalSetupPage() {
         const parsed = JSON.parse(raw);
         setExisting(parsed);
         if (Array.isArray(parsed.tags)) setSelectedTags(parsed.tags);
+      } else {
+        // Primera vez: habilitar el botón de guardar directamente
+        setHasChanges(true);
       }
-    } catch {}
+    } catch {
+      setHasChanges(true);
+    }
     setMounted(true);
   }, []);
 
@@ -63,7 +68,20 @@ export default function ProfessionalSetupPage() {
     const form = e.currentTarget;
     const data = new FormData(form);
 
+    const businessName = (data.get("businessName") as string).trim();
+    if (businessName.length < 2) {
+      setError("El nombre del negocio debe tener al menos 2 caracteres.");
+      setLoading(false);
+      return;
+    }
+
     const serviceId = (data.get("serviceId") as string) || null;
+    if (!serviceId) {
+      setError("Seleccioná un servicio principal.");
+      setLoading(false);
+      return;
+    }
+
     const experienceRaw = (data.get("experience") as string) || null;
 
     const body = {
@@ -127,12 +145,20 @@ export default function ProfessionalSetupPage() {
             <div className="mb-6 text-sm text-zinc-400">Verificando sincronización...</div>
           )}
 
-          <Link
-            href="/dashboard"
-            className="inline-block bg-orange-500 text-white px-6 py-3 rounded-xl hover:bg-orange-600 transition-colors font-semibold"
-          >
-            Ir al dashboard
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link
+              href="/professional/preview"
+              className="inline-block border border-orange-500 text-orange-500 px-6 py-3 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-950/20 transition-colors font-semibold"
+            >
+              Ver mi perfil público
+            </Link>
+            <Link
+              href="/dashboard"
+              className="inline-block bg-orange-500 text-white px-6 py-3 rounded-xl hover:bg-orange-600 transition-colors font-semibold"
+            >
+              Ir al dashboard
+            </Link>
+          </div>
         </div>
       </div>
     );

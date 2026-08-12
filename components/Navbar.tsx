@@ -155,6 +155,16 @@ export default function Navbar() {
                             ))}
                           </div>
                         )}
+                        {isProfessional && (
+                          <>
+                            <Link href="/solicitudes" className="block px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => setIsUserMenuOpen(false)}>
+                              Solicitudes
+                            </Link>
+                            <Link href="/professional/preview" className="block px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => setIsUserMenuOpen(false)}>
+                              Mi perfil público
+                            </Link>
+                          </>
+                        )}
                         <Link href="/settings" className="block px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => setIsUserMenuOpen(false)}>
                           Configuración
                         </Link>
@@ -271,6 +281,12 @@ export default function Navbar() {
                   <MobileLink href="/professionals" onClick={() => setIsMenuOpen(false)}>Profesionales</MobileLink>
                   {!isProfessional && (
                     <MobileLink href="/favorites" onClick={() => setIsMenuOpen(false)}>Favoritos</MobileLink>
+                  )}
+                  {isProfessional && (
+                    <>
+                      <MobileLink href="/solicitudes" onClick={() => setIsMenuOpen(false)}>Solicitudes</MobileLink>
+                      <MobileLink href="/dashboard" onClick={() => setIsMenuOpen(false)}>Dashboard</MobileLink>
+                    </>
                   )}
 
                   <hr className="border-zinc-200 dark:border-zinc-800 my-1" />

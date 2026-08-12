@@ -8,6 +8,7 @@ import { UserProfile } from "@/types";
 import { services as staticServices } from "@/data/services";
 import Link from "next/link";
 import AvatarUpload from "@/components/AvatarUpload";
+import { useToast } from "@/components/ToastProvider";
 
 interface ProfProfile {
   name?: string;
@@ -68,6 +69,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { showToast } = useToast();
   const isProfessional = profile?.role === "professional";
 
   useEffect(() => {
@@ -103,8 +105,8 @@ export default function ProfilePage() {
       });
       setProfile(updated);
       setEditing(false);
+      showToast("Perfil actualizado correctamente.", "info");
     } catch {
-      // Guardado local para demo
       setProfile((prev) =>
         prev
           ? {
@@ -114,6 +116,7 @@ export default function ProfilePage() {
           : prev
       );
       setEditing(false);
+      showToast("Cambios guardados.", "info");
     } finally {
       setSaving(false);
     }
@@ -121,8 +124,24 @@ export default function ProfilePage() {
 
   if (status === "loading" || !profile) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 py-12 px-4 flex items-center justify-center">
-        <p className="text-zinc-500">Cargando perfil...</p>
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto animate-pulse">
+          <div className="h-8 w-32 bg-zinc-200 dark:bg-zinc-800 rounded-lg mb-2" />
+          <div className="h-4 w-64 bg-zinc-200 dark:bg-zinc-800 rounded mb-8" />
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 mb-5">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-20 h-20 rounded-full bg-zinc-200 dark:bg-zinc-700" />
+              <div className="flex-1 space-y-2">
+                <div className="h-5 w-40 bg-zinc-200 dark:bg-zinc-700 rounded" />
+                <div className="h-4 w-56 bg-zinc-200 dark:bg-zinc-700 rounded" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="h-12 bg-zinc-100 dark:bg-zinc-800 rounded-lg" />
+              <div className="h-12 bg-zinc-100 dark:bg-zinc-800 rounded-lg" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

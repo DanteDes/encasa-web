@@ -3,9 +3,11 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useToast } from "@/components/ToastProvider";
 
 const CONTACTS_KEY = "encasa_client_contacts";
 const REVIEWS_KEY = "encasa_reviews";
+export const REVIEWS_EVENT = "encasa:review-added";
 
 interface StoredReview {
   professionalId: number;
@@ -37,11 +39,13 @@ function saveReview(review: StoredReview) {
   try {
     const reviews = getReviews();
     localStorage.setItem(REVIEWS_KEY, JSON.stringify([...reviews, review]));
+    window.dispatchEvent(new CustomEvent(REVIEWS_EVENT, { detail: review }));
   } catch {}
 }
 
 export default function ReviewForm({ professionalId }: { professionalId: number }) {
   const { data: session } = useSession();
+  const { showToast } = useToast();
   const [contacted, setContacted] = useState(false);
   const [existingReview, setExistingReview] = useState<StoredReview | null>(null);
   const [rating, setRating] = useState(0);
@@ -143,6 +147,7 @@ export default function ReviewForm({ professionalId }: { professionalId: number 
         userEmail,
       });
       setStatus("success");
+      showToast("¡Reseña publicada! Gracias por tu opinión.", "info");
     } catch {
       setStatus("error");
     }

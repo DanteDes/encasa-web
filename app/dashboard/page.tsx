@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import ProfessionalProfileBanner from "@/components/ProfessionalProfileBanner";
 import ProfessionalActivityEmpty from "@/components/ProfessionalActivityEmpty";
+import ClientStatsCards from "@/components/ClientStatsCards";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -54,9 +55,8 @@ export default async function DashboardPage() {
             </>
           ) : (
             <>
-              <StatCard icon="🔍" label="Búsquedas realizadas" value="0" sub="Esta semana" />
-              <StatCard icon="📅" label="Servicios contratados" value="0" sub="En total" />
-              <StatCard icon="❤️" label="Profesionales guardados" value="0" sub="En favoritos" />
+              <StatCard icon="🔍" label="Búsquedas realizadas" value="—" sub="Próximamente" />
+              <ClientStatsCards />
             </>
           )}
         </div>
@@ -70,7 +70,19 @@ export default async function DashboardPage() {
               {isProfessional ? "Solicitudes recientes" : "Actividad reciente"}
             </h2>
             {isProfessional ? (
-              <ProfessionalActivityEmpty />
+              <div className="text-center py-10">
+                <div className="text-6xl mb-4">📋</div>
+                <p className="text-zinc-600 dark:text-zinc-400 mb-2">Revisá tus solicitudes recibidas</p>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
+                  Cuando un cliente te contacte, verás sus mensajes ahí.
+                </p>
+                <Link
+                  href="/solicitudes"
+                  className="inline-block px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+                >
+                  Ver solicitudes
+                </Link>
+              </div>
             ) : (
               <div className="text-center py-10">
                 <div className="text-6xl mb-4">🔎</div>
@@ -96,7 +108,9 @@ export default async function DashboardPage() {
             <div className="flex flex-col gap-3">
               {isProfessional ? (
                 <>
-                  <QuickAction href="/professional/setup" icon="🔧" label="Editar perfil profesional" />
+                  <QuickAction href="/solicitudes" icon="📋" label="Ver solicitudes" />
+                  <QuickAction href="/professional/preview" icon="👁️" label="Mi perfil público" />
+                  <QuickAction href="/professional/setup" icon="🔧" label="Editar perfil" />
                   <QuickAction href="/professionals" icon="👥" label="Ver la competencia" />
                   <QuickAction href="/settings" icon="⚙️" label="Configuración" />
                 </>

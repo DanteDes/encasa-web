@@ -108,7 +108,7 @@ export default async function Home() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6">
             {services.map((service) => (
-              <ServiceCard key={service.id} service={service} linked={!!session} />
+              <ServiceCard key={service.id} service={service} linked={!!session} targetPage="professionals" />
             ))}
           </div>
 

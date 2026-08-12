@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useCallback, ReactNode } from "react";
 
-type ToastType = "success" | "remove" | "error";
+type ToastType = "success" | "remove" | "error" | "info";
 
 interface ToastItem {
   id: number;
@@ -24,12 +24,14 @@ const icons: Record<ToastType, string> = {
   success: "♥",
   remove: "♡",
   error: "✕",
+  info: "✓",
 };
 
 const colors: Record<ToastType, string> = {
   success: "bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 border-orange-500",
   remove: "bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 border-zinc-400",
   error: "bg-red-600 text-white border-red-700",
+  info: "bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 border-green-500",
 };
 
 export function ToastProvider({ children }: { children: ReactNode }) {
