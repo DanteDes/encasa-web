@@ -1,6 +1,15 @@
 # Roadmap de Desarrollo - EnCasa
 
-## 🎯 Estado Actual (v0.1)
+## 🎯 Estado Actual (v0.2)
+
+✅ **Recién agregado — Solicitudes y reseñas (backend real + frontend conectado):**
+- Backend real (Spring Boot + Postgres) para profesionales, solicitudes y reseñas — reemplaza el mock en `localStorage`
+- Roles reales (`cliente`/`profesional`), asignados automáticamente al crear un perfil de profesional
+- Ciclo de vida de solicitud: `nueva → en proceso → completada`, con **confirmación de ambas partes** (cliente y profesional) antes de marcar como completada, más auto-cierre por timeout
+- Reseñas gateadas por solicitud completada — nadie puede calificar sin un trabajo real confirmado por las dos partes (cubre "Verificación de reseñas (solo clientes reales)" de la Fase 3, más abajo)
+- Detalle completo del flujo en `BOOKINGS_AND_REVIEWS.md`
+
+## 🎯 Estado Anterior (v0.1)
 
 ✅ **Completado:**
 - Landing page atractiva con hero y secciones

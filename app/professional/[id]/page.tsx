@@ -6,6 +6,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProfessionalActions from "@/components/ProfessionalActions";
 import ProfServiceTags from "@/components/ProfServiceTags";
+import LeaveReviewForm from "@/components/LeaveReviewForm";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -164,6 +165,12 @@ export default async function ProfessionalDetailPage({ params }: PageProps) {
           <h2 className="text-2xl font-bold mb-6 text-zinc-900 dark:text-white">
             Reseñas ({reviews.length})
           </h2>
+
+          <LeaveReviewForm
+            professionalId={professional!.id}
+            reviewedBookingIds={reviews.map((r) => r.bookingId)}
+          />
+
           {reviews.length === 0 ? (
             <p className="text-zinc-500 text-center py-8">Todavía no hay reseñas para este profesional.</p>
           ) : (

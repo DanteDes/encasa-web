@@ -87,3 +87,58 @@ export async function getReviews(): Promise<Review[]> {
     return [];
   }
 }
+
+// ── Bookings & reviews (requieren backendToken de la sesión) ──
+
+export interface Booking {
+  id: number;
+  clientUserId: number;
+  clientEmail: string | null;
+  professionalId: number;
+  message: string | null;
+  status: "REQUESTED" | "IN_PROGRESS" | "COMPLETED";
+  createdAt: string;
+  clientConfirmedAt: string | null;
+  professionalConfirmedAt: string | null;
+}
+
+export async function createBooking(
+  token: string,
+  professionalId: number,
+  message: string
+): Promise<Booking> {
+  return apiFetch<Booking>("/bookings", {
+    method: "POST",
+    token,
+    body: JSON.stringify({ professionalId, message }),
+  });
+}
+
+export async function getMyBookings(token: string): Promise<Booking[]> {
+  try {
+    return await apiFetch<Booking[]>("/bookings/mine", { token });
+  } catch {
+    return [];
+  }
+}
+
+export async function markBookingInProgress(token: string, bookingId: number): Promise<Booking> {
+  return apiFetch<Booking>(`/bookings/${bookingId}/status`, { method: "PATCH", token });
+}
+
+export async function confirmBookingCompletion(token: string, bookingId: number): Promise<Booking> {
+  return apiFetch<Booking>(`/bookings/${bookingId}/confirm-completion`, { method: "POST", token });
+}
+
+export async function createReview(
+  token: string,
+  bookingId: number,
+  rating: number,
+  comment: string
+): Promise<Review> {
+  return apiFetch<Review>("/reviews", {
+    method: "POST",
+    token,
+    body: JSON.stringify({ bookingId, rating, comment: comment || null }),
+  });
+}

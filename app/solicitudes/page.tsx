@@ -1,65 +1,49 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { getMyBookings, markBookingInProgress, confirmBookingCompletion, type Booking } from "@/lib/api";
 
 type Estado = "nueva" | "en_proceso" | "completada";
 
 interface Solicitud {
-  id: string;
+  id: number;
   clienteNombre: string;
-  clienteEmail?: string;
-  servicio: string;
+  clienteEmail: string | null;
   mensaje: string;
   fecha: string;
   estado: Estado;
+  profesionalConfirmo: boolean;
 }
 
-const STORAGE_KEY = "encasa_solicitudes";
+function bookingToSolicitud(b: Booking): Solicitud {
+  const estado: Estado =
+    b.status === "REQUESTED" ? "nueva" : b.status === "IN_PROGRESS" ? "en_proceso" : "completada";
+  const clienteNombre = b.clientEmail
+    ? b.clientEmail.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+    : "Cliente";
 
-const MOCK_SOLICITUDES: Solicitud[] = [
-  {
-    id: "s1",
-    clienteNombre: "María González",
-    clienteEmail: "maria@gmail.com",
-    servicio: "Electricidad",
-    mensaje: "Hola, necesito revisar el tablero de luz de mi departamento. Hay un disyuntor que se dispara seguido. ¿Podés venir esta semana?",
-    fecha: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-    estado: "nueva",
-  },
-  {
-    id: "s2",
-    clienteNombre: "Lucas Fernández",
-    clienteEmail: "lucas.f@hotmail.com",
-    servicio: "Electricidad",
-    mensaje: "Quiero instalar un aire acondicionado y necesito un electricista para la instalación del toma especial. ¿Tenés disponibilidad para el sábado?",
-    fecha: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    estado: "en_proceso",
-  },
-  {
-    id: "s3",
-    clienteNombre: "Valeria Ramos",
-    servicio: "Electricidad",
-    mensaje: "Necesito cotización para cambiar toda la instalación eléctrica de una casa de 3 ambientes. Casa antigua, instalación de los 80s.",
-    fecha: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    estado: "completada",
-  },
-];
+  return {
+    id: b.id,
+    clienteNombre,
+    clienteEmail: b.clientEmail,
+    mensaje: b.message ?? "",
+    fecha: b.createdAt,
+    estado,
+    profesionalConfirmo: b.professionalConfirmedAt !== null,
+  };
+}
 
-const ESTADO_CONFIG: Record<Estado, { label: string; color: string; next?: Estado; nextLabel?: string }> = {
+const ESTADO_CONFIG: Record<Estado, { label: string; color: string }> = {
   nueva: {
     label: "Nueva",
     color: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-    next: "en_proceso",
-    nextLabel: "Marcar en proceso",
   },
   en_proceso: {
     label: "En proceso",
     color: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
-    next: "completada",
-    nextLabel: "Marcar completada",
   },
   completada: {
     label: "Completada",
@@ -78,20 +62,6 @@ function formatFecha(iso: string) {
   return `Hace ${days} días`;
 }
 
-function loadSolicitudes(): Solicitud[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : MOCK_SOLICITUDES;
-  } catch {
-    return MOCK_SOLICITUDES;
-  }
-}
-
-function saveSolicitudes(solicitudes: Solicitud[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(solicitudes));
-}
-
 type Filtro = "todas" | Estado;
 
 export default function SolicitudesPage() {
@@ -99,7 +69,9 @@ export default function SolicitudesPage() {
   const router = useRouter();
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
   const [filtro, setFiltro] = useState<Filtro>("todas");
-  const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [pendingId, setPendingId] = useState<number | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") router.replace("/auth/signin");
@@ -108,20 +80,50 @@ export default function SolicitudesPage() {
     }
   }, [status, session, router]);
 
-  useEffect(() => {
-    setSolicitudes(loadSolicitudes());
-    setMounted(true);
-  }, []);
+  const loadBookings = useCallback(async () => {
+    if (!session?.user?.backendToken) {
+      setSolicitudes([]);
+      setLoading(false);
+      return;
+    }
+    const bookings = await getMyBookings(session.user.backendToken);
+    setSolicitudes(bookings.map(bookingToSolicitud));
+    setLoading(false);
+  }, [session]);
 
-  function cambiarEstado(id: string, nuevoEstado: Estado) {
-    setSolicitudes((prev) => {
-      const updated = prev.map((s) => s.id === id ? { ...s, estado: nuevoEstado } : s);
-      saveSolicitudes(updated);
-      return updated;
-    });
+  useEffect(() => {
+    if (status === "authenticated") loadBookings();
+  }, [status, loadBookings]);
+
+  async function marcarEnProceso(id: number) {
+    if (!session?.user?.backendToken) return;
+    setActionError(null);
+    setPendingId(id);
+    try {
+      await markBookingInProgress(session.user.backendToken, id);
+      await loadBookings();
+    } catch {
+      setActionError("No se pudo actualizar la solicitud. Intentá de nuevo.");
+    } finally {
+      setPendingId(null);
+    }
   }
 
-  if (!mounted || status === "loading") return null;
+  async function confirmarFinalizacion(id: number) {
+    if (!session?.user?.backendToken) return;
+    setActionError(null);
+    setPendingId(id);
+    try {
+      await confirmBookingCompletion(session.user.backendToken, id);
+      await loadBookings();
+    } catch {
+      setActionError("No se pudo confirmar la finalización. Intentá de nuevo.");
+    } finally {
+      setPendingId(null);
+    }
+  }
+
+  if (status === "loading" || loading) return null;
 
   const filtradas = filtro === "todas" ? solicitudes : solicitudes.filter((s) => s.estado === filtro);
   const counts = {
@@ -156,6 +158,12 @@ export default function SolicitudesPage() {
             Clientes que te contactaron a través de la plataforma.
           </p>
         </div>
+
+        {actionError && (
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm">
+            {actionError}
+          </div>
+        )}
 
         {/* Filtros */}
         <div className="flex flex-wrap gap-2 mb-6">
@@ -202,7 +210,7 @@ export default function SolicitudesPage() {
                       </div>
                       <div>
                         <p className="font-semibold text-zinc-900 dark:text-white">{s.clienteNombre}</p>
-                        <p className="text-xs text-zinc-500">{formatFecha(s.fecha)} · {s.servicio}</p>
+                        <p className="text-xs text-zinc-500">{formatFecha(s.fecha)}</p>
                       </div>
                     </div>
                     <span className={`text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0 ${cfg.color}`}>
@@ -218,7 +226,7 @@ export default function SolicitudesPage() {
                   {/* Acciones */}
                   <div className="flex flex-wrap gap-2 pt-4 border-t border-zinc-100 dark:border-zinc-800">
                     <a
-                      href={`https://wa.me/${waNumber}?text=${encodeURIComponent(`Hola ${s.clienteNombre}, te contacto por tu solicitud de ${s.servicio} en EnCasa.`)}`}
+                      href={`https://wa.me/${waNumber}?text=${encodeURIComponent(`Hola ${s.clienteNombre}, te contacto por tu solicitud en EnCasa.`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors"
@@ -228,13 +236,28 @@ export default function SolicitudesPage() {
                       </svg>
                       Contactar
                     </a>
-                    {cfg.next && (
+                    {s.estado === "nueva" && (
                       <button
-                        onClick={() => cambiarEstado(s.id, cfg.next!)}
-                        className="px-4 py-2 border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg text-sm font-medium transition-colors"
+                        onClick={() => marcarEnProceso(s.id)}
+                        disabled={pendingId === s.id}
+                        className="px-4 py-2 border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                       >
-                        {cfg.nextLabel}
+                        Marcar en proceso
                       </button>
+                    )}
+                    {s.estado === "en_proceso" && !s.profesionalConfirmo && (
+                      <button
+                        onClick={() => confirmarFinalizacion(s.id)}
+                        disabled={pendingId === s.id}
+                        className="px-4 py-2 border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                      >
+                        Confirmar finalización
+                      </button>
+                    )}
+                    {s.estado === "en_proceso" && s.profesionalConfirmo && (
+                      <span className="px-4 py-2 text-sm text-zinc-500 dark:text-zinc-400">
+                        Esperando que el cliente confirme
+                      </span>
                     )}
                   </div>
                 </div>
