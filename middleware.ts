@@ -1,4 +1,4 @@
-export { auth as middleware } from "@/auth";
+export { auth as default } from "@/auth";
 
 export const config = {
   matcher: [
@@ -8,9 +8,3 @@ export const config = {
     "/settings/:path*",
   ],
 };
-
-
-
-
-
-

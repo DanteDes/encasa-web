@@ -73,12 +73,16 @@ export default function Navbar() {
                 <Link href="/services" className={navLink}>Servicios</Link>
                 <Link href="/professionals" className={navLink}>Profesionales</Link>
                 {!isProfessional && (
-                  <Link href="/favorites" className={navLink}>Favoritos</Link>
+                  <>
+                    <Link href="/favorites" className={navLink}>Favoritos</Link>
+                    <Link href="/mis-solicitudes" className={navLink}>Mis solicitudes</Link>
+                  </>
                 )}
 
                 {/* Extras para profesionales */}
                 {isProfessional && (
                   <>
+                    <Link href="/solicitudes" className={navLink}>Solicitudes</Link>
                     <span className="w-px h-5 bg-zinc-200 dark:bg-zinc-700" />
                     <Link href="/dashboard" className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors text-sm font-semibold">
                       Dashboard
@@ -155,15 +159,14 @@ export default function Navbar() {
                             ))}
                           </div>
                         )}
-                        {isProfessional && (
-                          <>
-                            <Link href="/solicitudes" className="block px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => setIsUserMenuOpen(false)}>
-                              Solicitudes
-                            </Link>
-                            <Link href="/professional/preview" className="block px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => setIsUserMenuOpen(false)}>
-                              Mi perfil público
-                            </Link>
-                          </>
+                        {isProfessional ? (
+                          <Link href="/professional/preview" className="block px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => setIsUserMenuOpen(false)}>
+                            Mi perfil público
+                          </Link>
+                        ) : (
+                          <Link href="/profile" className="block px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => setIsUserMenuOpen(false)}>
+                            Mi perfil
+                          </Link>
                         )}
                         <Link href="/settings" className="block px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => setIsUserMenuOpen(false)}>
                           Configuración
@@ -279,13 +282,15 @@ export default function Navbar() {
                   )}
                   <MobileLink href="/services" onClick={() => setIsMenuOpen(false)}>Servicios</MobileLink>
                   <MobileLink href="/professionals" onClick={() => setIsMenuOpen(false)}>Profesionales</MobileLink>
-                  {!isProfessional && (
-                    <MobileLink href="/favorites" onClick={() => setIsMenuOpen(false)}>Favoritos</MobileLink>
-                  )}
-                  {isProfessional && (
+                  {isProfessional ? (
                     <>
                       <MobileLink href="/solicitudes" onClick={() => setIsMenuOpen(false)}>Solicitudes</MobileLink>
                       <MobileLink href="/dashboard" onClick={() => setIsMenuOpen(false)}>Dashboard</MobileLink>
+                    </>
+                  ) : (
+                    <>
+                      <MobileLink href="/favorites" onClick={() => setIsMenuOpen(false)}>Favoritos</MobileLink>
+                      <MobileLink href="/mis-solicitudes" onClick={() => setIsMenuOpen(false)}>Mis solicitudes</MobileLink>
                     </>
                   )}
 

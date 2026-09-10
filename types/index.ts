@@ -22,6 +22,24 @@ export interface Professional {
   verified: boolean;
   matriculado?: boolean;
   availability: string;
+  phone?: string | null;
+}
+
+export interface Booking {
+  id: number;
+  clientUserId: number;
+  clientName?: string | null;
+  clientEmail?: string | null;
+  professionalId: number;
+  serviceId: string;
+  serviceName?: string | null;
+  scheduledDate: string;
+  status: "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
+  notes: string | null;
+  estimatedHours: number | null;
+  totalPrice: number | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Review {

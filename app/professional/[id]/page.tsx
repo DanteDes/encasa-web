@@ -129,7 +129,12 @@ export default async function ProfessionalDetailPage({ params }: PageProps) {
                 )}
               </div>
 
-              <ProfessionalActions id={professional!.id} name={professional!.name} />
+              <ProfessionalActions
+                id={professional!.id}
+                name={professional!.name}
+                phone={professional!.phone ?? null}
+                serviceId={professional!.serviceId}
+              />
             </div>
           </div>
         </div>

@@ -79,11 +79,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return true;
     },
-    async jwt({ token, account, user }) {
+    async jwt({ token, account, user, trigger, session }) {
       if (user?.role) token.role = user.role;
       if (user?.backendToken) token.backendToken = user.backendToken;
       if ((user as { hasProfessionalProfile?: boolean })?.hasProfessionalProfile !== undefined) {
         token.hasProfessionalProfile = (user as { hasProfessionalProfile?: boolean }).hasProfessionalProfile;
+      }
+
+      // Allow setup page to push role/profile updates immediately into the JWT
+      if (trigger === "update" && session) {
+        if (session.role) token.role = session.role;
+        if (session.hasProfessionalProfile !== undefined) token.hasProfessionalProfile = session.hasProfessionalProfile;
+        return token;
       }
 
       const now = Date.now();
@@ -158,5 +165,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60,
   },
-  debug: process.env.NODE_ENV === "development",
+  debug: false,
 });

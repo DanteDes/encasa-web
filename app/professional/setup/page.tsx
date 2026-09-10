@@ -18,10 +18,11 @@ interface SavedProfile {
   experience?: string | null;
   availability?: string;
   tags?: string[];
+  phone?: string | null;
 }
 
 export default function ProfessionalSetupPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -93,6 +94,7 @@ export default function ProfessionalSetupPage() {
       experience: experienceRaw,
       availability: (existing?.availability as string) ?? "disponible",
       tags: selectedTags,
+      phone: (data.get("phone") as string) || null,
     };
 
     // Guardar localmente siempre (funciona sin backend)
@@ -108,7 +110,10 @@ export default function ProfessionalSetupPage() {
             body: JSON.stringify(body),
           })
         )
-        .then(() => setSyncedToBackend(true))
+        .then(() => {
+          setSyncedToBackend(true);
+          update({ role: "professional", hasProfessionalProfile: true });
+        })
         .catch(() => setSyncedToBackend(false));
     } else {
       setSyncedToBackend(false);
@@ -208,7 +213,8 @@ export default function ProfessionalSetupPage() {
                 (data.get("experience") as string) !== (existing?.experience ?? "") ||
                 (data.get("hourlyRate") as string) !== String(existing?.hourlyRate ?? "") ||
                 (data.get("workArea") as string) !== (existing?.location ?? "") ||
-                (data.get("description") as string) !== (existing?.description ?? "");
+                (data.get("description") as string) !== (existing?.description ?? "") ||
+                (data.get("phone") as string) !== (existing?.phone ?? "");
               setHasChanges(changed); // tags se manejan por separado con setHasChanges(true) en el onClick
             }}
             className="space-y-6"
@@ -295,6 +301,21 @@ export default function ProfessionalSetupPage() {
                 placeholder="Contanos sobre tu experiencia, especialidades y por qué los clientes deberían elegirte..."
                 className={`${inputClass} resize-none`}
               />
+            </div>
+
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                Teléfono de contacto (WhatsApp)
+              </label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                defaultValue={existing?.phone ?? ""}
+                placeholder="Ej: 2235016610"
+                className={inputClass}
+              />
+              <p className="mt-1 text-xs text-zinc-400">Los clientes te van a contactar por acá. Sin el 0 ni el 15.</p>
             </div>
 
             {/* Tags */}

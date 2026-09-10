@@ -4,10 +4,11 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ToastProvider";
+import { addFavorite, removeFavorite } from "@/lib/api";
 
 const STORAGE_KEY = "encasa_favorites";
 
-function getFavorites(): number[] {
+function getFavoriteIds(): number[] {
   if (typeof window === "undefined") return [];
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]");
@@ -16,50 +17,81 @@ function getFavorites(): number[] {
   }
 }
 
-export const FAVORITES_EVENT = "encasa:favorites-updated";
-
-function toggleFavorite(id: number): boolean {
-  const favs = getFavorites();
-  const idx = favs.indexOf(id);
-  if (idx === -1) {
-    favs.push(id);
-  } else {
-    favs.splice(idx, 1);
-  }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(favs));
-  window.dispatchEvent(new CustomEvent(FAVORITES_EVENT, { detail: favs }));
-  return idx === -1;
+function setFavoriteIds(ids: number[]) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
 }
+
+export const FAVORITES_EVENT = "encasa:favorites-updated";
 
 export default function FavoriteButton({ id, name }: { id: number; name?: string }) {
   const { data: session } = useSession();
   const router = useRouter();
   const { showToast } = useToast();
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (session?.user) setSaved(getFavorites().includes(id));
+    if (session?.user) setSaved(getFavoriteIds().includes(id));
   }, [id, session]);
 
-  function handleClick() {
+  // Stay in sync when favorites page seeds localStorage
+  useEffect(() => {
+    function onUpdate(e: Event) {
+      setSaved((e as CustomEvent<number[]>).detail.includes(id));
+    }
+    window.addEventListener(FAVORITES_EVENT, onUpdate);
+    return () => window.removeEventListener(FAVORITES_EVENT, onUpdate);
+  }, [id]);
+
+  async function handleClick() {
     if (!session?.user) {
       router.push("/auth/signin");
       return;
     }
-    const nowSaved = toggleFavorite(id);
+
+    const token = session.user.backendToken;
+    const nowSaved = !saved;
+
+    // Optimistic update
     setSaved(nowSaved);
+    const ids = getFavoriteIds();
+    const updatedIds = nowSaved ? [...ids, id] : ids.filter((i) => i !== id);
+    setFavoriteIds(updatedIds);
+    window.dispatchEvent(new CustomEvent(FAVORITES_EVENT, { detail: updatedIds }));
+
     if (nowSaved) {
       showToast(name ? `${name} agregado a favoritos` : "Agregado a favoritos", "success");
     } else {
       showToast(name ? `${name} eliminado de favoritos` : "Eliminado de favoritos", "remove");
+    }
+
+    if (!token) return;
+
+    setLoading(true);
+    try {
+      if (nowSaved) {
+        await addFavorite(id, token);
+      } else {
+        await removeFavorite(id, token);
+      }
+    } catch {
+      // Rollback on failure
+      setSaved(!nowSaved);
+      const rolledBack = nowSaved ? ids.filter((i) => i !== id) : [...ids, id];
+      setFavoriteIds(rolledBack);
+      window.dispatchEvent(new CustomEvent(FAVORITES_EVENT, { detail: rolledBack }));
+      showToast("No se pudo actualizar el favorito", "error");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
     <button
       onClick={handleClick}
+      disabled={loading}
       title={session?.user ? (saved ? "Quitar de favoritos" : "Guardar en favoritos") : "Iniciá sesión para guardar favoritos"}
-      className={`px-4 py-3 border-2 rounded-xl transition-colors font-medium ${
+      className={`px-4 py-3 border-2 rounded-xl transition-colors font-medium disabled:opacity-60 ${
         saved
           ? "border-orange-500 bg-orange-50 dark:bg-orange-950/20 text-orange-500"
           : "border-orange-500 text-orange-500 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/20"

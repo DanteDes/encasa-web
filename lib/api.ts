@@ -1,5 +1,5 @@
 import { servicesMeta } from "./servicesMeta";
-import type { Service, Professional, Review } from "@/types";
+import type { Service, Professional, Review, Booking } from "@/types";
 import { services as mockServices } from "@/data/services";
 import { professionals as mockProfessionals } from "@/data/professionals";
 
@@ -18,7 +18,7 @@ export async function apiFetch<T>(
   };
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 2000);
+  const timeout = setTimeout(() => controller.abort(), 8000);
 
   try {
     const res = await fetch(`${BASE_URL}${path}`, {
@@ -86,4 +86,46 @@ export async function getReviews(): Promise<Review[]> {
   } catch {
     return [];
   }
+}
+
+export async function createBooking(
+  data: { professionalId: number; scheduledDate: string; estimatedHours?: number | null; notes?: string | null },
+  token: string
+): Promise<Booking> {
+  return apiFetch<Booking>("/bookings", {
+    method: "POST",
+    token,
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getProfessionalBookings(token: string): Promise<Booking[]> {
+  return apiFetch<Booking[]>("/bookings/professional", { token });
+}
+
+export async function getClientBookings(token: string): Promise<Booking[]> {
+  return apiFetch<Booking[]>("/bookings/me", { token });
+}
+
+export async function updateBookingStatus(
+  id: number,
+  action: "confirm" | "complete" | "cancel",
+  token: string
+): Promise<Booking> {
+  return apiFetch<Booking>(`/bookings/${id}/${action}`, {
+    method: "PUT",
+    token,
+  });
+}
+
+export async function getFavorites(token: string): Promise<Professional[]> {
+  return apiFetch<Professional[]>("/users/me/favorites", { token });
+}
+
+export async function addFavorite(id: number, token: string): Promise<void> {
+  return apiFetch<void>(`/users/me/favorites/${id}`, { method: "POST", token });
+}
+
+export async function removeFavorite(id: number, token: string): Promise<void> {
+  return apiFetch<void>(`/users/me/favorites/${id}`, { method: "DELETE", token });
 }
