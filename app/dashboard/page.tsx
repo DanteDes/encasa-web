@@ -4,6 +4,7 @@ import Link from "next/link";
 import ProfessionalProfileBanner from "@/components/ProfessionalProfileBanner";
 import ClientStatsCards from "@/components/ClientStatsCards";
 import ProfessionalBookingsPreview from "@/components/ProfessionalBookingsPreview";
+import ClientBookingsPreview from "@/components/ClientBookingsPreview";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -72,19 +73,7 @@ export default async function DashboardPage() {
             {isProfessional ? (
               <ProfessionalBookingsPreview />
             ) : (
-              <div className="text-center py-10">
-                <div className="text-6xl mb-4">🔎</div>
-                <p className="text-zinc-600 dark:text-zinc-400 mb-2">No hay actividad reciente</p>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
-                  Cuando contrates un profesional, tu historial aparecerá aquí.
-                </p>
-                <Link
-                  href="/services"
-                  className="inline-block px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
-                >
-                  Buscar profesionales
-                </Link>
-              </div>
+              <ClientBookingsPreview />
             )}
           </div>
 

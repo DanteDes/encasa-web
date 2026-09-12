@@ -10,22 +10,14 @@ import type { Booking } from "@/types";
 type Estado = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
 type Filtro = "todas" | Estado;
 
-const ESTADO_CONFIG: Record<Estado, { label: string; color: string; actions?: { action: "confirm" | "complete" | "cancel"; label: string }[] }> = {
+const ESTADO_CONFIG: Record<Estado, { label: string; color: string }> = {
   PENDING: {
     label: "Nueva",
     color: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-    actions: [
-      { action: "confirm", label: "Confirmar" },
-      { action: "cancel", label: "Cancelar" },
-    ],
   },
   CONFIRMED: {
     label: "En proceso",
     color: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
-    actions: [
-      { action: "complete", label: "Marcar completada" },
-      { action: "cancel", label: "Cancelar" },
-    ],
   },
   COMPLETED: {
     label: "Completada",
@@ -36,6 +28,29 @@ const ESTADO_CONFIG: Record<Estado, { label: string; color: string; actions?: { 
     color: "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400",
   },
 };
+
+/**
+ * Para CONFIRMED: "completar" es una confirmación de dos partes (ver
+ * BookingService.complete en el backend), así que una vez que el profesional
+ * ya confirmó no se le vuelve a ofrecer el botón — queda esperando al cliente.
+ */
+function getActions(b: Booking): { action: "confirm" | "complete" | "cancel"; label: string }[] {
+  if (b.status === "PENDING") {
+    return [
+      { action: "confirm", label: "Confirmar" },
+      { action: "cancel", label: "Cancelar" },
+    ];
+  }
+  if (b.status === "CONFIRMED") {
+    const actions: { action: "confirm" | "complete" | "cancel"; label: string }[] = [];
+    if (!b.professionalConfirmedAt) {
+      actions.push({ action: "complete", label: "Marcar completada" });
+    }
+    actions.push({ action: "cancel", label: "Cancelar" });
+    return actions;
+  }
+  return [];
+}
 
 function formatFecha(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
@@ -107,7 +122,7 @@ export default function SolicitudesPage() {
     setUpdating(id);
     try {
       const updated = await updateBookingStatus(id, action, session.user.backendToken);
-      setBookings((prev) => prev.map((b) => b.id === id ? { ...b, status: updated.status } : b));
+      setBookings((prev) => prev.map((b) => b.id === id ? { ...b, ...updated } : b));
     } catch {
       // silently fail — the button resets
     } finally {
@@ -210,6 +225,8 @@ export default function SolicitudesPage() {
             {filtradas.map((b) => {
               const cfg = ESTADO_CONFIG[b.status];
               const isUpdating = updating === b.id;
+              const actions = getActions(b);
+              const waitingOnClient = b.status === "CONFIRMED" && !!b.professionalConfirmedAt;
               return (
                 <div
                   key={b.id}
@@ -245,9 +262,9 @@ export default function SolicitudesPage() {
                     {b.clientEmail && <span>✉️ {b.clientEmail}</span>}
                   </div>
 
-                  {cfg.actions && cfg.actions.length > 0 && (
-                    <div className="flex flex-wrap gap-2 pt-4 border-t border-zinc-100 dark:border-zinc-800">
-                      {cfg.actions.map(({ action, label }) => (
+                  {actions.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                      {actions.map(({ action, label }) => (
                         <button
                           key={action}
                           disabled={isUpdating}
@@ -261,6 +278,11 @@ export default function SolicitudesPage() {
                           {isUpdating ? "..." : label}
                         </button>
                       ))}
+                      {waitingOnClient && (
+                        <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                          Esperando que el cliente confirme la finalización
+                        </span>
+                      )}
                     </div>
                   )}
                 </div>

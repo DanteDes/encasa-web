@@ -160,8 +160,11 @@ export default async function ProfessionalDetailPage({ params }: PageProps) {
           <h2 className="text-2xl font-bold mb-6 text-zinc-900 dark:text-white">
             Reseñas ({reviews.length})
           </h2>
-          <ReviewsList serverReviews={reviews} professionalId={professional!.id} />
-          <ReviewForm professionalId={professional!.id} />
+          <ReviewsList serverReviews={reviews} />
+          <ReviewForm
+            professionalId={professional!.id}
+            reviewedBookingIds={reviews.map((r) => r.bookingId)}
+          />
         </div>
       </div>
     </div>
