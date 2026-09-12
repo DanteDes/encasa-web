@@ -1,5 +1,7 @@
 # Roadmap de Desarrollo - EnCasa
 
+> Nota: este documento quedó desactualizado respecto al estado real del proyecto en `develop` (auth, bookings, reviews, favoritos y dashboards ya están construidos) — pendiente una pasada completa. Lo último agregado, en `feature/two-party-booking-confirmation`: confirmación de dos partes (cliente + profesional) antes de marcar una reserva como completada, y gate real de reseñas por booking completado — reemplaza un mock que solo chequeaba si el cliente había clickeado WhatsApp. Detalle en `BOOKINGS_AND_REVIEWS.md`.
+
 ## 🎯 Estado Actual (v0.1)
 
 ✅ **Completado:**
