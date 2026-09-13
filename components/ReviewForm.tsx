@@ -1,76 +1,57 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useToast } from "@/components/ToastProvider";
+import { getClientBookings, createReview } from "@/lib/api";
+import type { Booking } from "@/types";
 
-const CONTACTS_KEY = "encasa_client_contacts";
-const REVIEWS_KEY = "encasa_reviews";
-export const REVIEWS_EVENT = "encasa:review-added";
-
-interface StoredReview {
+export default function ReviewForm({
+  professionalId,
+  reviewedBookingIds,
+}: {
   professionalId: number;
-  rating: number;
-  comment: string;
-  date: string;
-  userEmail: string;
-}
-
-function getContacts(): number[] {
-  try {
-    const raw = localStorage.getItem(CONTACTS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-function getReviews(): StoredReview[] {
-  try {
-    const raw = localStorage.getItem(REVIEWS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveReview(review: StoredReview) {
-  try {
-    const reviews = getReviews();
-    localStorage.setItem(REVIEWS_KEY, JSON.stringify([...reviews, review]));
-    window.dispatchEvent(new CustomEvent(REVIEWS_EVENT, { detail: review }));
-  } catch {}
-}
-
-export default function ReviewForm({ professionalId }: { professionalId: number }) {
-  const { data: session } = useSession();
+  reviewedBookingIds: number[];
+}) {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const { showToast } = useToast();
-  const [contacted, setContacted] = useState(false);
-  const [existingReview, setExistingReview] = useState<StoredReview | null>(null);
+  const [pendingBooking, setPendingBooking] = useState<Booking | null | undefined>(undefined);
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [comment, setComment] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [mounted, setMounted] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
   const isProfessional = session?.user?.role === "professional";
-  const userEmail = session?.user?.email ?? "";
+  const token = session?.user?.backendToken;
+
+  const loadPendingBooking = useCallback(async () => {
+    if (!token) {
+      setPendingBooking(null);
+      return;
+    }
+    try {
+      const bookings = await getClientBookings(token);
+      const eligible = bookings.find(
+        (b) =>
+          b.professionalId === professionalId &&
+          b.status === "COMPLETED" &&
+          !reviewedBookingIds.includes(b.id)
+      );
+      setPendingBooking(eligible ?? null);
+    } catch {
+      setPendingBooking(null);
+    }
+  }, [token, professionalId, reviewedBookingIds]);
 
   useEffect(() => {
-    const contacts = getContacts();
-    setContacted(contacts.includes(professionalId));
+    if (status === "authenticated") loadPendingBooking();
+    if (status === "unauthenticated") setPendingBooking(null);
+  }, [status, loadPendingBooking]);
 
-    const reviews = getReviews();
-    const mine = reviews.find(
-      (r) => r.professionalId === professionalId && r.userEmail === userEmail
-    );
-    if (mine) setExistingReview(mine);
-
-    setMounted(true);
-  }, [professionalId, userEmail]);
-
-  if (isProfessional || !mounted) return null;
+  if (isProfessional || pendingBooking === undefined) return null;
 
   if (!session?.user) {
     return (
@@ -86,37 +67,12 @@ export default function ReviewForm({ professionalId }: { professionalId: number 
     );
   }
 
-  if (!contacted) {
-    return (
-      <div className="border-t border-zinc-200 dark:border-zinc-800 pt-6 mt-6 text-center">
-        <p className="text-zinc-500 text-sm">
-          Para dejar una reseña, primero contactá al profesional desde esta página.
-        </p>
-      </div>
-    );
-  }
+  // Sin una solicitud completada (y confirmada por las dos partes) todavía no
+  // hay nada que reseñar — ver BOOKINGS_AND_REVIEWS.md sobre por qué el gate
+  // es un booking real y no simplemente "haber contactado" al profesional.
+  if (!pendingBooking) return null;
 
-  if (existingReview) {
-    return (
-      <div className="border-t border-zinc-200 dark:border-zinc-800 pt-6 mt-6">
-        <h3 className="font-semibold text-zinc-900 dark:text-white mb-3">Tu reseña</h3>
-        <div className="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-4">
-          <div className="flex items-center gap-1 mb-2">
-            {[1, 2, 3, 4, 5].map((s) => (
-              <span key={s} className={s <= existingReview.rating ? "text-yellow-400" : "text-zinc-300 dark:text-zinc-600"}>
-                ★
-              </span>
-            ))}
-          </div>
-          {existingReview.comment && (
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">{existingReview.comment}</p>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  if (status === "success") {
+  if (submitStatus === "success") {
     return (
       <div className="border-t border-zinc-200 dark:border-zinc-800 pt-6 mt-6">
         <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-6 text-center">
@@ -131,25 +87,15 @@ export default function ReviewForm({ professionalId }: { professionalId: number 
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (rating === 0) return;
-    setStatus("loading");
+    if (rating === 0 || !pendingBooking || !token) return;
+    setSubmitStatus("loading");
     try {
-      await fetch("/api/reviews", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ professionalId, rating, comment }),
-      });
-      saveReview({
-        professionalId,
-        rating,
-        comment,
-        date: new Date().toISOString(),
-        userEmail,
-      });
-      setStatus("success");
+      await createReview({ bookingId: pendingBooking.id, rating, comment }, token);
+      setSubmitStatus("success");
       showToast("¡Reseña publicada! Gracias por tu opinión.", "info");
+      router.refresh();
     } catch {
-      setStatus("error");
+      setSubmitStatus("error");
     }
   }
 
@@ -185,16 +131,16 @@ export default function ReviewForm({ professionalId }: { professionalId: number 
           className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 resize-none focus:outline-none focus:ring-2 focus:ring-orange-500"
         />
 
-        {status === "error" && (
+        {submitStatus === "error" && (
           <p className="text-red-500 text-sm">Hubo un error al enviar tu reseña. Intentá de nuevo.</p>
         )}
 
         <button
           type="submit"
-          disabled={rating === 0 || status === "loading"}
+          disabled={rating === 0 || submitStatus === "loading"}
           className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-colors"
         >
-          {status === "loading" ? "Enviando..." : "Publicar reseña"}
+          {submitStatus === "loading" ? "Enviando..." : "Publicar reseña"}
         </button>
       </form>
     </div>

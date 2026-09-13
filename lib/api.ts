@@ -118,6 +118,17 @@ export async function updateBookingStatus(
   });
 }
 
+export async function createReview(
+  data: { bookingId: number; rating: number; comment?: string | null },
+  token: string
+): Promise<Review> {
+  return apiFetch<Review>("/reviews", {
+    method: "POST",
+    token,
+    body: JSON.stringify(data),
+  });
+}
+
 export async function getFavorites(token: string): Promise<Professional[]> {
   return apiFetch<Professional[]>("/users/me/favorites", { token });
 }

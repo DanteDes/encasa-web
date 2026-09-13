@@ -27,10 +27,12 @@ export interface Professional {
 
 export interface Booking {
   id: number;
-  clientUserId: number;
+  clientUserId?: number;
   clientName?: string | null;
   clientEmail?: string | null;
   professionalId: number;
+  professionalName?: string | null;
+  professionalPhone?: string | null;
   serviceId: string;
   serviceName?: string | null;
   scheduledDate: string;
@@ -40,6 +42,8 @@ export interface Booking {
   totalPrice: number | null;
   createdAt: string;
   updatedAt: string;
+  clientConfirmedAt: string | null;
+  professionalConfirmedAt: string | null;
 }
 
 export interface Review {
