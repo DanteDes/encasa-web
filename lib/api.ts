@@ -1,5 +1,5 @@
 import { servicesMeta } from "./servicesMeta";
-import type { Service, Professional, Review, Booking } from "@/types";
+import type { Service, Professional, Review, Booking, AppNotification } from "@/types";
 import { services as mockServices } from "@/data/services";
 import { professionals as mockProfessionals } from "@/data/professionals";
 
@@ -173,6 +173,18 @@ export async function getMyReviews(token: string): Promise<Review[]> {
 
 export async function getProfessionalReviews(professionalId: number): Promise<Review[]> {
   return apiFetch<Review[]>(`/reviews/professional/${professionalId}`);
+}
+
+export async function getMyNotifications(token: string): Promise<AppNotification[]> {
+  return apiFetch<AppNotification[]>("/notifications/me", { token });
+}
+
+export async function markNotificationRead(id: number, token: string): Promise<void> {
+  return apiFetch<void>(`/notifications/${id}/read`, { method: "PATCH", token });
+}
+
+export async function markAllNotificationsRead(token: string): Promise<void> {
+  return apiFetch<void>("/notifications/me/read-all", { method: "PATCH", token });
 }
 
 export async function getFavorites(token: string): Promise<Professional[]> {

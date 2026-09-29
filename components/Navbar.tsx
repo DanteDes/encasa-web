@@ -5,8 +5,7 @@ import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import Logo from "./Logo";
 import { getStoredAvatar, onAvatarUpdated } from "@/lib/avatar";
-import PendingRequestsBell from "@/components/PendingRequestsBell";
-import ClientNotificationsBell from "@/components/ClientNotificationsBell";
+import NotificationsBell from "@/components/NotificationsBell";
 
 type AvailStatus = "disponible" | "ocupado" | "no-disponible";
 const STATUS_DOT: Record<AvailStatus, string> = {
@@ -95,8 +94,7 @@ export default function Navbar() {
                   </>
                 )}
 
-                {isProfessional && <PendingRequestsBell />}
-                {isLoggedIn && !isProfessional && <ClientNotificationsBell />}
+                <NotificationsBell />
 
                 {/* Avatar + dropdown */}
                 <div className="relative">
@@ -204,8 +202,7 @@ export default function Navbar() {
 
           {/* Mobile burger */}
           <div className="md:hidden flex items-center gap-1">
-            {isProfessional && <PendingRequestsBell />}
-            {isLoggedIn && !isProfessional && <ClientNotificationsBell />}
+            {isLoggedIn && <NotificationsBell />}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800"

@@ -57,6 +57,15 @@ export interface Review {
   createdAt: string;
 }
 
+export interface AppNotification {
+  id: number;
+  type: "NEW_BOOKING" | "BOOKING_NEEDS_YOUR_CONFIRMATION" | "BOOKING_COMPLETED" | "REVIEW_RECEIVED";
+  message: string;
+  bookingId: number | null;
+  read: boolean;
+  createdAt: string;
+}
+
 export interface UserProfile {
   id: string;
   email: string;
