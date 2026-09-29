@@ -1,21 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { getMyProfessionalProfile } from "@/lib/api";
 
 export default function ProfessionalProfileBanner() {
+  const { data: session } = useSession();
   const [complete, setComplete] = useState(true); // default true para no mostrar flash
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("encasa_prof_profile");
-      if (!raw) { setComplete(false); return; }
-      const prof = JSON.parse(raw);
-      setComplete(!!prof.serviceId);
-    } catch {
-      setComplete(false);
-    }
-  }, []);
+    const token = session?.user?.backendToken;
+    if (!token) return;
+    getMyProfessionalProfile(token)
+      .then((prof) => setComplete(!!prof.serviceId))
+      .catch(() => setComplete(false));
+  }, [session?.user?.backendToken]);
 
   if (complete) return null;
 

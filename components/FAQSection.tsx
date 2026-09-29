@@ -5,7 +5,7 @@ import { useState } from "react";
 const faqs = [
   {
     q: "¿Cómo verifican a los profesionales?",
-    a: "Cada profesional pasa por una revisión de matrícula habilitante, identidad y antecedentes antes de aparecer en la plataforma. Además, solo clientes que efectivamente contrataron un servicio pueden dejar una reseña.",
+    a: "Verificamos identidad y antecedentes de todos los profesionales antes de que aparezcan en la plataforma. En los oficios que lo requieren —como los gasistas— también verificamos la matrícula habilitante. Los profesionales que no cuentan con matrícula lo tienen indicado claramente en su perfil, para que puedas decidir con toda la información. Además, solo clientes que efectivamente contrataron un servicio pueden dejar una reseña.",
   },
   {
     q: "¿Es gratis solicitar un presupuesto?",

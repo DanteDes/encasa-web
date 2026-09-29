@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { apiFetch } from "@/lib/api";
 import { professionals as mockProfessionals } from "@/data/professionals";
+import { getMockReviewsForProfessional } from "@/data/reviews";
 import type { Professional, Review } from "@/types";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProfessionalActions from "@/components/ProfessionalActions";
 import ProfServiceTags from "@/components/ProfServiceTags";
+import ReviewForm from "@/components/ReviewForm";
+import ReviewsList from "@/components/ReviewsList";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -29,18 +32,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-function formatDate(iso: string) {
-  const diff = Date.now() - new Date(iso).getTime();
-  const days = Math.floor(diff / 86400000);
-  if (days === 0) return "Hoy";
-  if (days === 1) return "Hace 1 día";
-  if (days < 7) return `Hace ${days} días`;
-  if (days < 14) return "Hace 1 semana";
-  if (days < 30) return `Hace ${Math.floor(days / 7)} semanas`;
-  if (days < 60) return "Hace 1 mes";
-  return `Hace ${Math.floor(days / 30)} meses`;
-}
-
 export default async function ProfessionalDetailPage({ params }: PageProps) {
   const { id } = await params;
 
@@ -58,7 +49,7 @@ export default async function ProfessionalDetailPage({ params }: PageProps) {
   try {
     reviews = await apiFetch<Review[]>(`/reviews/professional/${id}`);
   } catch {
-    reviews = [];
+    reviews = getMockReviewsForProfessional(Number(id));
   }
 
   return (
@@ -138,7 +129,12 @@ export default async function ProfessionalDetailPage({ params }: PageProps) {
                 )}
               </div>
 
-              <ProfessionalActions id={professional!.id} name={professional!.name} />
+              <ProfessionalActions
+                id={professional!.id}
+                name={professional!.name}
+                phone={professional!.phone ?? null}
+                serviceId={professional!.serviceId}
+              />
             </div>
           </div>
         </div>
@@ -156,7 +152,7 @@ export default async function ProfessionalDetailPage({ params }: PageProps) {
         {/* Services */}
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 mb-8">
           <h2 className="text-2xl font-bold mb-4 text-zinc-900 dark:text-white">Servicios que ofrece</h2>
-          <ProfServiceTags service={professional!.service} />
+          <ProfServiceTags service={professional!.service} tags={professional!.tags ?? []} />
         </div>
 
         {/* Reviews */}
@@ -164,35 +160,11 @@ export default async function ProfessionalDetailPage({ params }: PageProps) {
           <h2 className="text-2xl font-bold mb-6 text-zinc-900 dark:text-white">
             Reseñas ({reviews.length})
           </h2>
-          {reviews.length === 0 ? (
-            <p className="text-zinc-500 text-center py-8">Todavía no hay reseñas para este profesional.</p>
-          ) : (
-            <div className="space-y-6">
-              {reviews.map((review) => (
-                <div key={review.id} className="border-b border-zinc-200 dark:border-zinc-800 pb-6 last:border-0">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-10 h-10 bg-zinc-200 dark:bg-zinc-700 rounded-full flex items-center justify-center text-sm font-semibold">
-                        C
-                      </div>
-                      <div>
-                        <p className="font-semibold text-zinc-900 dark:text-white">Cliente verificado</p>
-                        <p className="text-sm text-zinc-500">{formatDate(review.createdAt)}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      {[...Array(review.rating)].map((_, i) => (
-                        <span key={i} className="text-yellow-500">⭐</span>
-                      ))}
-                    </div>
-                  </div>
-                  {review.comment && (
-                    <p className="text-zinc-600 dark:text-zinc-400">{review.comment}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
+          <ReviewsList serverReviews={reviews} />
+          <ReviewForm
+            professionalId={professional!.id}
+            reviewedBookingIds={reviews.map((r) => r.bookingId)}
+          />
         </div>
       </div>
     </div>

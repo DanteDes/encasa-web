@@ -4,9 +4,10 @@ import { Service } from "@/types";
 interface ServiceCardProps {
   service: Service;
   linked?: boolean;
+  targetPage?: "service" | "professionals";
 }
 
-export default function ServiceCard({ service, linked = true }: ServiceCardProps) {
+export default function ServiceCard({ service, linked = true, targetPage = "service" }: ServiceCardProps) {
   const inner = (
       <div className="relative bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 md:p-6 transition-all duration-300 hover:border-orange-500 dark:hover:border-orange-500 hover:shadow-xl hover:-translate-y-1">
         {/* Badge de disponibilidad */}
@@ -61,7 +62,10 @@ export default function ServiceCard({ service, linked = true }: ServiceCardProps
   );
 
   if (!linked) return <div className="block">{inner}</div>;
-  return <Link href={`/services/${service.id}`} className="block group">{inner}</Link>;
+  const href = targetPage === "professionals"
+    ? `/professionals?service=${service.id}`
+    : `/services/${service.id}`;
+  return <Link href={href} className="block group">{inner}</Link>;
 }
 
 

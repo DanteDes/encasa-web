@@ -20,7 +20,32 @@ export interface Professional {
   description: string | null;
   experience: number | null;
   verified: boolean;
+  matriculado?: boolean;
   availability: string;
+  phone?: string | null;
+  tags?: string[];
+}
+
+export interface Booking {
+  id: number;
+  clientUserId?: number;
+  clientName?: string | null;
+  clientEmail?: string | null;
+  professionalId: number;
+  professionalName?: string | null;
+  professionalPhone?: string | null;
+  serviceId: string;
+  serviceName?: string | null;
+  scheduledDate: string;
+  status: "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
+  notes: string | null;
+  estimatedHours: number | null;
+  totalPrice: number | null;
+  createdAt: string;
+  updatedAt: string;
+  clientConfirmedAt: string | null;
+  professionalConfirmedAt: string | null;
+  photoUrls?: string[];
 }
 
 export interface Review {
@@ -33,15 +58,23 @@ export interface Review {
   createdAt: string;
 }
 
-export interface UserProfile {
+export interface AppNotification {
   id: number;
+  type: "NEW_BOOKING" | "BOOKING_NEEDS_YOUR_CONFIRMATION" | "BOOKING_COMPLETED" | "REVIEW_RECEIVED";
+  message: string;
+  bookingId: number | null;
+  read: boolean;
+  createdAt: string;
+}
+
+export interface UserProfile {
+  id: string;
   email: string;
   name: string | null;
-  phone: string | null;
-  avatar: string | null;
-  bio: string | null;
-  location: string | null;
+  picture: string | null;
   role: string;
+  hasProfessionalProfile: boolean;
+  emailNotifications: boolean;
 }
 
 export interface Testimonial {

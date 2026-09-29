@@ -4,23 +4,15 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { services as staticServices } from "@/data/services";
+import { getMyProfessionalProfile, getProfessionalReviews } from "@/lib/api";
 import { getStoredAvatar } from "@/lib/avatar";
+import ProfServiceTags from "@/components/ProfServiceTags";
+import ReviewsList from "@/components/ReviewsList";
+import type { Professional, Review } from "@/types";
 
-interface ProfProfile {
-  name?: string;
-  serviceId?: string | null;
-  hourlyRate?: number | null;
-  location?: string | null;
-  description?: string | null;
-  experience?: string | null;
-  availability?: string;
-  tags?: string[];
-}
-
-const AVAILABILITY_CONFIG = {
-  disponible:     { label: "Disponible ahora", dot: "bg-green-500" },
-  ocupado:        { label: "Ocupado",           dot: "bg-orange-500" },
+const AVAILABILITY_CONFIG: Record<string, { label: string; dot: string }> = {
+  disponible:      { label: "Disponible ahora", dot: "bg-green-500" },
+  ocupado:         { label: "Ocupado",           dot: "bg-orange-500" },
   "no-disponible": { label: "No disponible",    dot: "bg-red-500" },
 };
 
@@ -34,8 +26,11 @@ const EXPERIENCE_LABELS: Record<string, string> = {
 export default function ProfessionalPreviewPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [prof, setProf] = useState<ProfProfile | null>(null);
+  const [prof, setProf] = useState<Professional | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [avatar, setAvatar] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") router.replace("/auth/signin");
@@ -45,19 +40,38 @@ export default function ProfessionalPreviewPage() {
   }, [status, session, router]);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("encasa_prof_profile");
-      if (raw) setProf(JSON.parse(raw));
-    } catch {}
     setAvatar(getStoredAvatar());
-  }, []);
+    const token = session?.user?.backendToken;
+    if (!token) return;
+
+    setLoading(true);
+    setError(false);
+    getMyProfessionalProfile(token)
+      .then((p) => {
+        setProf(p);
+        return getProfessionalReviews(p.id);
+      })
+      .then((r) => setReviews(r))
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }, [session?.user?.backendToken]);
 
   if (status === "loading" || !session?.user) return null;
 
-  const name = prof?.name ?? session.user.name ?? "Tu nombre";
-  const service = staticServices.find((s) => s.id === prof?.serviceId);
-  const availKey = (prof?.availability ?? "disponible") as keyof typeof AVAILABILITY_CONFIG;
-  const availCfg = AVAILABILITY_CONFIG[availKey] ?? AVAILABILITY_CONFIG.disponible;
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center text-zinc-500">Cargando...</div>;
+  }
+
+  if (error || !prof) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4 text-center">
+        <p className="text-zinc-600 dark:text-zinc-400">No pudimos cargar tu perfil público. Intentá de nuevo en unos minutos.</p>
+        <Link href="/dashboard" className="text-orange-500 hover:underline font-medium">Volver al dashboard</Link>
+      </div>
+    );
+  }
+
+  const availCfg = AVAILABILITY_CONFIG[prof.availability] ?? AVAILABILITY_CONFIG.disponible;
   const src = avatar ?? session.user.image;
 
   return (
@@ -69,8 +83,8 @@ export default function ProfessionalPreviewPage() {
           <p className="text-sm text-orange-800 dark:text-orange-300 font-medium">
             👁️ Así ve tu perfil un cliente
           </p>
-          <Link href="/" className="text-xs text-orange-600 dark:text-orange-400 hover:underline font-medium">
-            Volver al inicio
+          <Link href="/dashboard" className="text-xs text-orange-600 dark:text-orange-400 hover:underline font-medium">
+            Volver al dashboard
           </Link>
         </div>
 
@@ -80,7 +94,7 @@ export default function ProfessionalPreviewPage() {
             {/* Avatar */}
             <div className="w-28 h-28 rounded-full flex-shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
               {src ? (
-                <img src={src} alt={name} className="w-full h-full object-cover" />
+                <img src={src} alt={prof.name} className="w-full h-full object-cover" />
               ) : (
                 <span className="text-5xl">👤</span>
               )}
@@ -88,28 +102,34 @@ export default function ProfessionalPreviewPage() {
 
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">{name}</h1>
-                <span className="text-blue-600 text-2xl" title="Verificado">✓</span>
+                <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">{prof.name}</h1>
+                {prof.verified && (
+                  <span className="text-blue-600 text-2xl" title="Verificado">✓</span>
+                )}
               </div>
               <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-4">
-                {service?.name ?? "—"}
+                {prof.service}
               </p>
 
               <div className="flex flex-wrap items-center gap-4 mb-4">
                 <div className="flex items-center gap-1">
                   <span className="text-yellow-500 text-xl">⭐</span>
-                  <span className="font-bold text-lg text-zinc-900 dark:text-white">—</span>
-                  <span className="text-zinc-500 text-sm">(sin reseñas aún)</span>
+                  <span className="font-bold text-lg text-zinc-900 dark:text-white">
+                    {prof.reviewCount > 0 ? prof.rating.toFixed(1) : "—"}
+                  </span>
+                  <span className="text-zinc-500 text-sm">
+                    {prof.reviewCount > 0 ? `(${prof.reviewCount} reseña${prof.reviewCount !== 1 ? "s" : ""})` : "(sin reseñas aún)"}
+                  </span>
                 </div>
-                {prof?.experience && (
+                {prof.experience && (
                   <>
                     <span className="text-zinc-300 dark:text-zinc-700">•</span>
                     <span className="text-zinc-600 dark:text-zinc-400">
-                      {EXPERIENCE_LABELS[prof.experience] ?? prof.experience} de experiencia
+                      {EXPERIENCE_LABELS[String(prof.experience)] ?? prof.experience} de experiencia
                     </span>
                   </>
                 )}
-                {prof?.location && (
+                {prof.location && (
                   <>
                     <span className="text-zinc-300 dark:text-zinc-700">•</span>
                     <span className="text-zinc-600 dark:text-zinc-400">📍 {prof.location}</span>
@@ -118,7 +138,7 @@ export default function ProfessionalPreviewPage() {
               </div>
 
               <div className="flex items-center gap-4">
-                {prof?.hourlyRate != null && (
+                {prof.hourlyRate != null && (
                   <div>
                     <span className="text-3xl font-bold text-zinc-900 dark:text-white">
                       ${prof.hourlyRate.toLocaleString("es-AR")}
@@ -136,36 +156,23 @@ export default function ProfessionalPreviewPage() {
         </div>
 
         {/* Descripción */}
-        {prof?.description && (
+        {prof.description && (
           <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 mb-6">
-            <h2 className="text-2xl font-bold mb-4 text-zinc-900 dark:text-white">Sobre {name}</h2>
+            <h2 className="text-2xl font-bold mb-4 text-zinc-900 dark:text-white">Sobre {prof.name}</h2>
             <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">{prof.description}</p>
           </div>
         )}
 
         {/* Tags */}
-        {(service || (prof?.tags && prof.tags.length > 0)) && (
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 mb-6">
-            <h2 className="text-2xl font-bold mb-4 text-zinc-900 dark:text-white">Servicios que ofrece</h2>
-            <div className="flex flex-wrap gap-2">
-              {service && (
-                <span className="bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-200 px-4 py-2 rounded-lg text-sm font-medium">
-                  {service.name}
-                </span>
-              )}
-              {prof?.tags?.map((tag) => (
-                <span key={tag} className="bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 px-4 py-2 rounded-lg text-sm">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 mb-6">
+          <h2 className="text-2xl font-bold mb-4 text-zinc-900 dark:text-white">Servicios que ofrece</h2>
+          <ProfServiceTags service={prof.service} tags={prof.tags ?? []} />
+        </div>
 
         {/* Reseñas */}
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8">
-          <h2 className="text-2xl font-bold mb-4 text-zinc-900 dark:text-white">Reseñas (0)</h2>
-          <p className="text-zinc-500 text-center py-8">Todavía no hay reseñas. ¡Completá trabajos y pedile a tus clientes que te califiquen!</p>
+          <h2 className="text-2xl font-bold mb-6 text-zinc-900 dark:text-white">Reseñas ({reviews.length})</h2>
+          <ReviewsList serverReviews={reviews} />
         </div>
 
         {/* CTA editar */}

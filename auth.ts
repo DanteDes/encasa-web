@@ -3,6 +3,7 @@ import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 
 const FIVE_MINUTES = 5 * 60 * 1000;
+const API_URL = process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -26,32 +27,44 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const { email, password } = credentials as { email: string; password: string };
         if (!email || !password) return null;
 
-        // TODO: reemplazar por llamada real al backend cuando esté disponible
-        // const res = await fetch(`${apiUrl}/auth/login`, { method: "POST", body: JSON.stringify({ email, password }) });
-        // if (!res.ok) return null;
-        // return res.json();
+        try {
+          const res = await fetch(`${API_URL}/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+            signal: AbortSignal.timeout(3000),
+          });
 
-        // TODO: reemplazar por validación real contra la base de datos
-        // const res = await fetch(`${apiUrl}/auth/login`, { method: "POST", body: JSON.stringify({ email, password }) });
-        // if (!res.ok) return null;
-        // return res.json();
+          if (!res.ok) return null;
 
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email) || password.length < 6) return null;
+          const data = await res.json();
+          // data: { token, user: { id, email, name, picture, role, hasProfessionalProfile, emailNotifications } }
+          return {
+            id: data.user.id,
+            email: data.user.email,
+            name: data.user.name,
+            image: data.user.picture,
+            role: data.user.role,
+            backendToken: data.token,
+            hasProfessionalProfile: data.user.hasProfessionalProfile,
+          };
+        } catch {
+          // Fallback demo cuando el backend no está disponible
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(email) || password.length < 6) return null;
 
-        // Cuenta de demo para el rol profesional
-        if (email === "profesional@encasa.com" && password === "prof1234") {
-          return { id: "demo-prof", email, name: "Demo Profesional", role: "professional" };
+          if (email === "profesional@encasa.com" && password === "prof1234") {
+            return { id: "demo-prof", email, name: "Demo Profesional", role: "professional" };
+          }
+
+          const name = email.split("@")[0].replace(/[._-]/g, " ");
+          return {
+            id: email,
+            email,
+            name: name.charAt(0).toUpperCase() + name.slice(1),
+            role: "client",
+          };
         }
-
-        // Cualquier otro email/password válido → cliente
-        const name = email.split("@")[0].replace(/[._-]/g, " ");
-        return {
-          id: email,
-          email,
-          name: name.charAt(0).toUpperCase() + name.slice(1),
-          role: "client",
-        };
       },
     }),
   ],
@@ -66,39 +79,51 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return true;
     },
-    async jwt({ token, account, user }) {
-      // Persist role from Credentials authorize into the token
+    async jwt({ token, account, user, trigger, session }) {
       if (user?.role) token.role = user.role;
-      const apiUrl =
-        process.env.BACKEND_URL ??
-        process.env.NEXT_PUBLIC_API_URL ??
-        "http://localhost:8080";
+      if (user?.backendToken) token.backendToken = user.backendToken;
+      if ((user as { hasProfessionalProfile?: boolean })?.hasProfessionalProfile !== undefined) {
+        token.hasProfessionalProfile = (user as { hasProfessionalProfile?: boolean }).hasProfessionalProfile;
+      }
+
+      // Allow setup page to push role/profile updates immediately into the JWT
+      if (trigger === "update" && session) {
+        if (session.role) token.role = session.role;
+        if (session.hasProfessionalProfile !== undefined) token.hasProfessionalProfile = session.hasProfessionalProfile;
+        return token;
+      }
+
       const now = Date.now();
 
-      if (account) {
-        // First sign-in: sync user to backend
+      // For Google OAuth (first sign-in): sync with backend
+      if (account?.provider === "google") {
         try {
-          const res = await fetch(`${apiUrl}/auth/sync`, {
+          const res = await fetch(`${API_URL}/auth/oauth/google`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               email: token.email,
               name: token.name,
-              image: token.picture,
+              picture: token.picture,
+              googleSub: account.providerAccountId ?? null,
+              intent: null,
             }),
+            signal: AbortSignal.timeout(3000),
           });
           if (res.ok) {
             const data = await res.json();
+            // data: { token, user: { id, email, name, picture, role, hasProfessionalProfile, emailNotifications } }
             token.backendToken = data.token;
+            token.role = data.user.role;
+            token.hasProfessionalProfile = data.user.hasProfessionalProfile;
             token.roleRefreshedAt = now;
           }
         } catch {
-          // Backend unavailable on sign-in
+          // Backend unavailable
         }
       }
 
-      // Refresh role from backend every 5 minutes so role changes
-      // (e.g. user creates professional profile) reflect without re-login
+      // Refresh role every 5 minutes
       const needsRefresh =
         token.backendToken &&
         (!token.roleRefreshedAt ||
@@ -106,12 +131,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       if (needsRefresh) {
         try {
-          const profileRes = await fetch(`${apiUrl}/users/me`, {
+          const profileRes = await fetch(`${API_URL}/users/me`, {
             headers: { Authorization: `Bearer ${token.backendToken}` },
+            signal: AbortSignal.timeout(3000),
           });
           if (profileRes.ok) {
             const profile = await profileRes.json();
             token.role = profile.role;
+            token.hasProfessionalProfile = profile.hasProfessionalProfile;
             token.roleRefreshedAt = now;
           }
         } catch {
@@ -124,8 +151,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.sub as string;
-        if (token.backendToken) session.user.backendToken = token.backendToken;
-        if (token.role) session.user.role = token.role;
+        if (token.backendToken) session.user.backendToken = token.backendToken as string;
+        if (token.role) session.user.role = token.role as string;
+        if (token.hasProfessionalProfile !== undefined) {
+          (session.user as { hasProfessionalProfile?: boolean }).hasProfessionalProfile =
+            token.hasProfessionalProfile as boolean;
+        }
       }
       return session;
     },
@@ -134,5 +165,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60,
   },
-  debug: process.env.NODE_ENV === "development",
+  debug: false,
 });

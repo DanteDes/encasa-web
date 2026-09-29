@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import ProfessionalCard from "@/components/ProfessionalCard";
 import SearchBar from "@/components/SearchBar";
 import { getProfessionals, getServices } from "@/lib/api";
@@ -12,14 +12,17 @@ import { useSession } from "next-auth/react";
 
 function ProfessionalsContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { data: session } = useSession();
   const isProfessional = session?.user?.role === "professional";
   const [all, setAll] = useState<Professional[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedService, setSelectedService] = useState<string>("all");
+  const [selectedService, setSelectedService] = useState<string>(searchParams.get("service") ?? "all");
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") ?? "");
+  const [onlyAvailable, setOnlyAvailable] = useState(false);
+  const [sortBy, setSortBy] = useState<"default" | "rating" | "price_asc" | "price_desc">("default");
 
   useEffect(() => {
     Promise.all([getProfessionals(), getServices()])
@@ -33,8 +36,9 @@ function ProfessionalsContent() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = all.filter((p) => {
+  let filtered = all.filter((p) => {
     const matchesService = selectedService === "all" || p.serviceId === selectedService;
+    const matchesAvailable = !onlyAvailable || p.availability === "disponible";
     const q = searchQuery.toLowerCase().trim();
     const matchesSearch =
       !q ||
@@ -42,8 +46,24 @@ function ProfessionalsContent() {
       p.service.toLowerCase().includes(q) ||
       (p.location ?? "").toLowerCase().includes(q) ||
       (p.description ?? "").toLowerCase().includes(q);
-    return matchesService && matchesSearch;
+    return matchesService && matchesSearch && matchesAvailable;
   });
+
+  if (sortBy === "rating") {
+    filtered = [...filtered].sort((a, b) => b.rating - a.rating);
+  } else if (sortBy === "price_asc") {
+    filtered = [...filtered].sort((a, b) => (a.hourlyRate ?? Infinity) - (b.hourlyRate ?? Infinity));
+  } else if (sortBy === "price_desc") {
+    filtered = [...filtered].sort((a, b) => (b.hourlyRate ?? 0) - (a.hourlyRate ?? 0));
+  }
+
+  function selectService(id: string) {
+    setSelectedService(id);
+    const params = new URLSearchParams(searchParams.toString());
+    if (id === "all") params.delete("service");
+    else params.set("service", id);
+    router.replace(`/professionals?${params.toString()}`, { scroll: false });
+  }
 
   const activeBtn = "bg-orange-500 text-white";
   const inactiveBtn = "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700";
@@ -84,7 +104,7 @@ function ProfessionalsContent() {
             </h3>
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => setSelectedService("all")}
+                onClick={() => selectService("all")}
                 className={`px-4 py-2 rounded-lg transition-colors text-sm font-medium ${selectedService === "all" ? activeBtn : inactiveBtn}`}
               >
                 Todos
@@ -92,7 +112,7 @@ function ProfessionalsContent() {
               {services.map((service) => (
                 <button
                   key={service.id}
-                  onClick={() => setSelectedService(service.id)}
+                  onClick={() => selectService(service.id)}
                   className={`px-4 py-2 rounded-lg transition-colors text-sm font-medium ${selectedService === service.id ? activeBtn : inactiveBtn}`}
                 >
                   {service.icon} {service.name}
@@ -102,15 +122,38 @@ function ProfessionalsContent() {
           </div>
         )}
 
-        {/* Result count */}
-        <div className="mb-6">
-          {!loading && !error && (
-            <p className="text-zinc-600 dark:text-zinc-400 text-sm">
-              {filtered.length} profesional{filtered.length !== 1 ? "es" : ""} encontrado{filtered.length !== 1 ? "s" : ""}
-              {searchQuery && <span className="ml-1">para <strong>"{searchQuery}"</strong></span>}
+        {/* Availability + sort controls */}
+        {!loading && !error && (
+          <div className="flex flex-wrap items-center gap-3 mb-6">
+            <button
+              onClick={() => setOnlyAvailable(!onlyAvailable)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                onlyAvailable
+                  ? "bg-green-500 text-white border-green-500"
+                  : "border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:border-zinc-400 dark:hover:border-zinc-500 bg-white dark:bg-zinc-900"
+              }`}
+            >
+              <span className={`w-2 h-2 rounded-full ${onlyAvailable ? "bg-white" : "bg-green-500"}`} />
+              Solo disponibles
+            </button>
+
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+              className="px-4 py-2 rounded-lg text-sm border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-orange-500 cursor-pointer"
+            >
+              <option value="default">Ordenar por</option>
+              <option value="rating">Mejor calificación</option>
+              <option value="price_asc">Menor precio</option>
+              <option value="price_desc">Mayor precio</option>
+            </select>
+
+            <p className="text-zinc-500 dark:text-zinc-400 text-sm ml-auto">
+              {filtered.length} profesional{filtered.length !== 1 ? "es" : ""}
+              {searchQuery && <span className="ml-1">para <strong>&ldquo;{searchQuery}&rdquo;</strong></span>}
             </p>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Results */}
         {loading ? (

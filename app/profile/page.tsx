@@ -8,6 +8,7 @@ import { UserProfile } from "@/types";
 import { services as staticServices } from "@/data/services";
 import Link from "next/link";
 import AvatarUpload from "@/components/AvatarUpload";
+import { useToast } from "@/components/ToastProvider";
 
 interface ProfProfile {
   name?: string;
@@ -33,14 +34,13 @@ function buildProfileFromSession(user: {
   role?: string;
 }): UserProfile {
   return {
-    id: 0,
+    id: "",
     email: user.email ?? "",
     name: user.name ?? null,
-    phone: null,
-    avatar: user.image ?? null,
-    bio: null,
-    location: null,
+    picture: user.image ?? null,
     role: user.role ?? "client",
+    hasProfessionalProfile: false,
+    emailNotifications: true,
   };
 }
 
@@ -69,6 +69,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { showToast } = useToast();
   const isProfessional = profile?.role === "professional";
 
   useEffect(() => {
@@ -100,27 +101,22 @@ export default function ProfilePage() {
         token: session!.user.backendToken,
         body: JSON.stringify({
           name: data.get("name") || null,
-          phone: data.get("phone") || null,
-          location: data.get("location") || null,
-          bio: data.get("bio") || null,
         }),
       });
       setProfile(updated);
       setEditing(false);
+      showToast("Perfil actualizado correctamente.", "info");
     } catch {
-      // Guardado local para demo
       setProfile((prev) =>
         prev
           ? {
               ...prev,
               name: (data.get("name") as string) || prev.name,
-              phone: (data.get("phone") as string) || prev.phone,
-              location: (data.get("location") as string) || prev.location,
-              bio: (data.get("bio") as string) || prev.bio,
             }
           : prev
       );
       setEditing(false);
+      showToast("Cambios guardados.", "info");
     } finally {
       setSaving(false);
     }
@@ -128,8 +124,24 @@ export default function ProfilePage() {
 
   if (status === "loading" || !profile) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 py-12 px-4 flex items-center justify-center">
-        <p className="text-zinc-500">Cargando perfil...</p>
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto animate-pulse">
+          <div className="h-8 w-32 bg-zinc-200 dark:bg-zinc-800 rounded-lg mb-2" />
+          <div className="h-4 w-64 bg-zinc-200 dark:bg-zinc-800 rounded mb-8" />
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 mb-5">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-20 h-20 rounded-full bg-zinc-200 dark:bg-zinc-700" />
+              <div className="flex-1 space-y-2">
+                <div className="h-5 w-40 bg-zinc-200 dark:bg-zinc-700 rounded" />
+                <div className="h-4 w-56 bg-zinc-200 dark:bg-zinc-700 rounded" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="h-12 bg-zinc-100 dark:bg-zinc-800 rounded-lg" />
+              <div className="h-12 bg-zinc-100 dark:bg-zinc-800 rounded-lg" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -190,23 +202,9 @@ export default function ProfilePage() {
 
           {editing ? (
             <form onSubmit={handleSave} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Nombre</label>
-                  <input name="name" defaultValue={profile.name ?? ""} className={inputClass} />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Teléfono</label>
-                  <input name="phone" defaultValue={profile.phone ?? ""} placeholder="223-000-0000" className={inputClass} />
-                </div>
-              </div>
               <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Ubicación</label>
-                <input name="location" defaultValue={profile.location ?? ""} placeholder="Mar del Plata, Buenos Aires" className={inputClass} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Bio</label>
-                <textarea name="bio" defaultValue={profile.bio ?? ""} rows={3} placeholder="Contanos algo sobre vos..." className={`${inputClass} resize-none`} />
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Nombre</label>
+                <input name="name" defaultValue={profile.name ?? ""} className={inputClass} />
               </div>
               <button type="submit" disabled={saving} className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium disabled:opacity-50">
                 {saving ? "Guardando..." : "Guardar cambios"}
@@ -222,20 +220,6 @@ export default function ProfilePage() {
                 <label className="block text-sm font-medium text-zinc-500 mb-1">Email</label>
                 <div className={fieldClass}>{profile.email}</div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-zinc-500 mb-1">Teléfono</label>
-                <div className={fieldClass}>{profile.phone ?? "—"}</div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-zinc-500 mb-1">Ubicación</label>
-                <div className={fieldClass}>{profile.location ?? "—"}</div>
-              </div>
-              {profile.bio && (
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-zinc-500 mb-1">Bio</label>
-                  <div className={fieldClass}>{profile.bio}</div>
-                </div>
-              )}
             </div>
           )}
         </div>

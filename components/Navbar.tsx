@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import Logo from "./Logo";
 import { getStoredAvatar, onAvatarUpdated } from "@/lib/avatar";
+import NotificationsBell from "@/components/NotificationsBell";
 
 type AvailStatus = "disponible" | "ocupado" | "no-disponible";
 const STATUS_DOT: Record<AvailStatus, string> = {
@@ -73,12 +74,16 @@ export default function Navbar() {
                 <Link href="/services" className={navLink}>Servicios</Link>
                 <Link href="/professionals" className={navLink}>Profesionales</Link>
                 {!isProfessional && (
-                  <Link href="/favorites" className={navLink}>Favoritos</Link>
+                  <>
+                    <Link href="/favorites" className={navLink}>Favoritos</Link>
+                    <Link href="/mis-solicitudes" className={navLink}>Mis solicitudes</Link>
+                  </>
                 )}
 
                 {/* Extras para profesionales */}
                 {isProfessional && (
                   <>
+                    <Link href="/solicitudes" className={navLink}>Solicitudes</Link>
                     <span className="w-px h-5 bg-zinc-200 dark:bg-zinc-700" />
                     <Link href="/dashboard" className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors text-sm font-semibold">
                       Dashboard
@@ -88,6 +93,8 @@ export default function Navbar() {
                     </Link>
                   </>
                 )}
+
+                <NotificationsBell />
 
                 {/* Avatar + dropdown */}
                 <div className="relative">
@@ -155,6 +162,15 @@ export default function Navbar() {
                             ))}
                           </div>
                         )}
+                        {isProfessional ? (
+                          <Link href="/professional/preview" className="block px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => setIsUserMenuOpen(false)}>
+                            Mi perfil público
+                          </Link>
+                        ) : (
+                          <Link href="/profile" className="block px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => setIsUserMenuOpen(false)}>
+                            Mi perfil
+                          </Link>
+                        )}
                         <Link href="/settings" className="block px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => setIsUserMenuOpen(false)}>
                           Configuración
                         </Link>
@@ -185,10 +201,12 @@ export default function Navbar() {
           </div>
 
           {/* Mobile burger */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800"
-          >
+          <div className="md:hidden flex items-center gap-1">
+            {isLoggedIn && <NotificationsBell />}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800"
+            >
             <svg className="w-6 h-6 text-zinc-700 dark:text-zinc-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {isMenuOpen ? (
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -196,7 +214,8 @@ export default function Navbar() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               )}
             </svg>
-          </button>
+            </button>
+          </div>
         </div>
 
         {/* Mobile menu */}
@@ -269,8 +288,16 @@ export default function Navbar() {
                   )}
                   <MobileLink href="/services" onClick={() => setIsMenuOpen(false)}>Servicios</MobileLink>
                   <MobileLink href="/professionals" onClick={() => setIsMenuOpen(false)}>Profesionales</MobileLink>
-                  {!isProfessional && (
-                    <MobileLink href="/favorites" onClick={() => setIsMenuOpen(false)}>Favoritos</MobileLink>
+                  {isProfessional ? (
+                    <>
+                      <MobileLink href="/solicitudes" onClick={() => setIsMenuOpen(false)}>Solicitudes</MobileLink>
+                      <MobileLink href="/dashboard" onClick={() => setIsMenuOpen(false)}>Dashboard</MobileLink>
+                    </>
+                  ) : (
+                    <>
+                      <MobileLink href="/favorites" onClick={() => setIsMenuOpen(false)}>Favoritos</MobileLink>
+                      <MobileLink href="/mis-solicitudes" onClick={() => setIsMenuOpen(false)}>Mis solicitudes</MobileLink>
+                    </>
                   )}
 
                   <hr className="border-zinc-200 dark:border-zinc-800 my-1" />
