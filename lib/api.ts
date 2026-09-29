@@ -133,6 +133,10 @@ export async function createReview(
   });
 }
 
+export async function getMyReviews(token: string): Promise<Review[]> {
+  return apiFetch<Review[]>("/reviews/me", { token });
+}
+
 export async function getFavorites(token: string): Promise<Professional[]> {
   return apiFetch<Professional[]>("/users/me/favorites", { token });
 }

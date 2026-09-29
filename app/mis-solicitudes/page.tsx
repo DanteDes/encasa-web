@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { getClientBookings, updateBookingStatus } from "@/lib/api";
+import { getClientBookings, getMyReviews, updateBookingStatus } from "@/lib/api";
 import type { Booking } from "@/types";
 
 type Filtro = "todas" | Booking["status"];
@@ -50,6 +50,8 @@ export default function MisSolicitudesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState<number | null>(null);
+  const [confirming, setConfirming] = useState<number | null>(null);
+  const [reviewedBookingIds, setReviewedBookingIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (status === "unauthenticated") router.replace("/auth/signin");
@@ -63,8 +65,12 @@ export default function MisSolicitudesPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await getClientBookings(session.user.backendToken);
+      const [data, reviews] = await Promise.all([
+        getClientBookings(session.user.backendToken),
+        getMyReviews(session.user.backendToken),
+      ]);
       setBookings(data);
+      setReviewedBookingIds(new Set(reviews.map((r) => r.bookingId)));
     } catch {
       setError("No se pudieron cargar tus solicitudes.");
     } finally {
@@ -87,6 +93,19 @@ export default function MisSolicitudesPage() {
       // silently fail
     } finally {
       setCancelling(null);
+    }
+  }
+
+  async function handleConfirmCompletion(id: number) {
+    if (!session?.user?.backendToken) return;
+    setConfirming(id);
+    try {
+      const updated = await updateBookingStatus(id, "complete", session.user.backendToken);
+      setBookings((prev) => prev.map((b) => b.id === id ? { ...b, ...updated } : b));
+    } catch {
+      // silently fail — el botón vuelve a su estado normal, se puede reintentar
+    } finally {
+      setConfirming(null);
     }
   }
 
@@ -229,9 +248,14 @@ export default function MisSolicitudesPage() {
                       Esperando confirmación del profesional.
                     </p>
                   )}
-                  {b.status === "CONFIRMED" && (
+                  {b.status === "CONFIRMED" && !b.professionalConfirmedAt && (
                     <p className="text-xs text-orange-600 dark:text-orange-400 mb-4 pl-13">
                       El profesional confirmó tu solicitud.
+                    </p>
+                  )}
+                  {b.status === "CONFIRMED" && b.professionalConfirmedAt && !b.clientConfirmedAt && (
+                    <p className="text-xs text-orange-600 dark:text-orange-400 mb-4 pl-13">
+                      El profesional marcó el trabajo como terminado. Confirmá para poder calificarlo.
                     </p>
                   )}
 
@@ -257,6 +281,23 @@ export default function MisSolicitudesPage() {
                       >
                         {cancelling === b.id ? "..." : "Cancelar solicitud"}
                       </button>
+                    )}
+                    {b.status === "CONFIRMED" && !b.clientConfirmedAt && (
+                      <button
+                        disabled={confirming === b.id}
+                        onClick={() => handleConfirmCompletion(b.id)}
+                        className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                      >
+                        {confirming === b.id ? "..." : "Confirmar que se completó"}
+                      </button>
+                    )}
+                    {b.status === "COMPLETED" && !reviewedBookingIds.has(b.id) && (
+                      <Link
+                        href={`/professional/${b.professionalId}`}
+                        className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors"
+                      >
+                        Dejar reseña
+                      </Link>
                     )}
                   </div>
                 </div>
