@@ -23,6 +23,7 @@ export interface Professional {
   matriculado?: boolean;
   availability: string;
   phone?: string | null;
+  tags?: string[];
 }
 
 export interface Booking {
@@ -54,6 +55,15 @@ export interface Review {
   professionalId: number;
   rating: number;
   comment: string | null;
+  createdAt: string;
+}
+
+export interface AppNotification {
+  id: number;
+  type: "NEW_BOOKING" | "BOOKING_NEEDS_YOUR_CONFIRMATION" | "BOOKING_COMPLETED" | "REVIEW_RECEIVED";
+  message: string;
+  bookingId: number | null;
+  read: boolean;
   createdAt: string;
 }
 

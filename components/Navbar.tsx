@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import Logo from "./Logo";
 import { getStoredAvatar, onAvatarUpdated } from "@/lib/avatar";
+import NotificationsBell from "@/components/NotificationsBell";
 
 type AvailStatus = "disponible" | "ocupado" | "no-disponible";
 const STATUS_DOT: Record<AvailStatus, string> = {
@@ -92,6 +93,8 @@ export default function Navbar() {
                     </Link>
                   </>
                 )}
+
+                <NotificationsBell />
 
                 {/* Avatar + dropdown */}
                 <div className="relative">
@@ -198,10 +201,12 @@ export default function Navbar() {
           </div>
 
           {/* Mobile burger */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800"
-          >
+          <div className="md:hidden flex items-center gap-1">
+            {isLoggedIn && <NotificationsBell />}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800"
+            >
             <svg className="w-6 h-6 text-zinc-700 dark:text-zinc-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {isMenuOpen ? (
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -209,7 +214,8 @@ export default function Navbar() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               )}
             </svg>
-          </button>
+            </button>
+          </div>
         </div>
 
         {/* Mobile menu */}
