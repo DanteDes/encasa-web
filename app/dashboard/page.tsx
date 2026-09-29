@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import ProfessionalProfileBanner from "@/components/ProfessionalProfileBanner";
 import ClientStatsCards from "@/components/ClientStatsCards";
+import ProfessionalStatsCards from "@/components/ProfessionalStatsCards";
 import ProfessionalBookingsPreview from "@/components/ProfessionalBookingsPreview";
 import ClientBookingsPreview from "@/components/ClientBookingsPreview";
 
@@ -49,11 +50,7 @@ export default async function DashboardPage() {
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {isProfessional ? (
-            <>
-              <StatCard icon="📋" label="Solicitudes recibidas" value="0" sub="Esta semana" />
-              <StatCard icon="✅" label="Trabajos completados" value="0" sub="En total" />
-              <StatCard icon="⭐" label="Calificación promedio" value="—" sub="Sin reseñas aún" />
-            </>
+            <ProfessionalStatsCards />
           ) : (
             <>
               <StatCard icon="🔍" label="Búsquedas realizadas" value="—" sub="Próximamente" />

@@ -103,6 +103,10 @@ export async function getProfessionalBookings(token: string): Promise<Booking[]>
   return apiFetch<Booking[]>("/bookings/professional", { token });
 }
 
+export async function getMyProfessionalProfile(token: string): Promise<Professional> {
+  return apiFetch<Professional>("/professionals/me", { token });
+}
+
 export async function getClientBookings(token: string): Promise<Booking[]> {
   return apiFetch<Booking[]>("/bookings/me", { token });
 }
