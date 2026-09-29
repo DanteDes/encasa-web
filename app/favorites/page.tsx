@@ -8,17 +8,6 @@ import { getFavorites } from "@/lib/api";
 import { FAVORITES_EVENT } from "@/components/FavoriteButton";
 import type { Professional } from "@/types";
 
-const STORAGE_KEY = "encasa_favorites";
-
-function getSavedIds(): number[] {
-  if (typeof window === "undefined") return [];
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]");
-  } catch {
-    return [];
-  }
-}
-
 export default function FavoritesPage() {
   const { data: session, status } = useSession();
   const [favorites, setFavorites] = useState<Professional[]>([]);
@@ -37,15 +26,9 @@ export default function FavoritesPage() {
     if (token) {
       setLoading(true);
       getFavorites(token)
-        .then((data) => {
-          setFavorites(data);
-          // Seed localStorage so FavoriteButtons on other pages sync up
-          const ids = data.map((p) => p.id);
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
-          window.dispatchEvent(new CustomEvent(FAVORITES_EVENT, { detail: ids }));
-        })
+        .then(setFavorites)
         .catch(() => {
-          // Backend unavailable — fall back to local IDs (no Professional data available)
+          // Backend unavailable
           setFavorites([]);
         })
         .finally(() => setLoading(false));

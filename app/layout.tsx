@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import SessionProvider from "@/components/SessionProvider";
 import ThemeProvider from "@/components/ThemeProvider";
 import { ToastProvider } from "@/components/ToastProvider";
+import FavoritesSync from "@/components/FavoritesSync";
 import { auth } from "@/auth";
 
 const geistSans = Geist({
@@ -51,6 +52,7 @@ export default async function RootLayout({
         <ThemeProvider>
           <SessionProvider session={session}>
             <ToastProvider>
+              <FavoritesSync />
               <Navbar />
               {children}
               <Footer />
