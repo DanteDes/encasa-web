@@ -44,6 +44,7 @@ export interface Booking {
   updatedAt: string;
   clientConfirmedAt: string | null;
   professionalConfirmedAt: string | null;
+  photoUrls?: string[];
 }
 
 export interface Review {
