@@ -23,6 +23,7 @@ export interface Professional {
   matriculado?: boolean;
   availability: string;
   phone?: string | null;
+  tags?: string[];
 }
 
 export interface Booking {

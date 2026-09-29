@@ -107,6 +107,40 @@ export async function getMyProfessionalProfile(token: string): Promise<Professio
   return apiFetch<Professional>("/professionals/me", { token });
 }
 
+export interface ProfessionalProfileInput {
+  name: string;
+  serviceId: string;
+  hourlyRate: number | null;
+  location: string | null;
+  description: string | null;
+  experience: string | null;
+  availability: string;
+  tags: string[];
+  phone: string | null;
+}
+
+export async function createProfessionalProfile(
+  data: ProfessionalProfileInput,
+  token: string
+): Promise<Professional> {
+  return apiFetch<Professional>("/professionals/me", {
+    method: "POST",
+    token,
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateProfessionalProfile(
+  data: ProfessionalProfileInput,
+  token: string
+): Promise<Professional> {
+  return apiFetch<Professional>("/professionals/me", {
+    method: "PUT",
+    token,
+    body: JSON.stringify(data),
+  });
+}
+
 export async function getClientBookings(token: string): Promise<Booking[]> {
   return apiFetch<Booking[]>("/bookings/me", { token });
 }
@@ -135,6 +169,10 @@ export async function createReview(
 
 export async function getMyReviews(token: string): Promise<Review[]> {
   return apiFetch<Review[]>("/reviews/me", { token });
+}
+
+export async function getProfessionalReviews(professionalId: number): Promise<Review[]> {
+  return apiFetch<Review[]>(`/reviews/professional/${professionalId}`);
 }
 
 export async function getFavorites(token: string): Promise<Professional[]> {

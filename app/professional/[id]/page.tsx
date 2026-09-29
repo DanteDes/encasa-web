@@ -152,7 +152,7 @@ export default async function ProfessionalDetailPage({ params }: PageProps) {
         {/* Services */}
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 mb-8">
           <h2 className="text-2xl font-bold mb-4 text-zinc-900 dark:text-white">Servicios que ofrece</h2>
-          <ProfServiceTags service={professional!.service} />
+          <ProfServiceTags service={professional!.service} tags={professional!.tags ?? []} />
         </div>
 
         {/* Reviews */}

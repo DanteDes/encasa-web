@@ -3,54 +3,42 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { getServices } from "@/lib/api";
-import { Service } from "@/types";
+import { getServices, getMyProfessionalProfile, createProfessionalProfile, updateProfessionalProfile } from "@/lib/api";
+import { Service, Professional } from "@/types";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import { AVAILABLE_TAGS, MAX_TAGS } from "@/lib/serviceTags";
-
-interface SavedProfile {
-  name?: string;
-  serviceId?: string | null;
-  hourlyRate?: number | null;
-  location?: string | null;
-  description?: string | null;
-  experience?: string | null;
-  availability?: string;
-  tags?: string[];
-  phone?: string | null;
-}
 
 export default function ProfessionalSetupPage() {
   const { data: session, status, update } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [syncedToBackend, setSyncedToBackend] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [services, setServices] = useState<Service[]>([]);
-  const [existing, setExisting] = useState<SavedProfile | null>(null);
+  const [existing, setExisting] = useState<Professional | null>(null);
   const [mounted, setMounted] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   useEffect(() => {
     getServices().then(setServices);
-    try {
-      const raw = localStorage.getItem("encasa_prof_profile");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        setExisting(parsed);
-        if (Array.isArray(parsed.tags)) setSelectedTags(parsed.tags);
-      } else {
-        // Primera vez: habilitar el botón de guardar directamente
-        setHasChanges(true);
-      }
-    } catch {
-      setHasChanges(true);
-    }
-    setMounted(true);
   }, []);
+
+  useEffect(() => {
+    const token = session?.user?.backendToken;
+    if (!token) return;
+    getMyProfessionalProfile(token)
+      .then((prof) => {
+        setExisting(prof);
+        setSelectedTags(prof.tags ?? []);
+      })
+      .catch(() => {
+        // No hay perfil todavía: habilitar el botón de guardar directamente
+        setHasChanges(true);
+      })
+      .finally(() => setMounted(true));
+  }, [session?.user?.backendToken]);
 
   if (status === "loading" || !mounted || services.length === 0) {
     return <div className="min-h-screen flex items-center justify-center text-zinc-500">Cargando...</div>;
@@ -64,6 +52,13 @@ export default function ProfessionalSetupPage() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+
+    const token = session?.user?.backendToken;
+    if (!token) {
+      setError("No pudimos verificar tu sesión. Volvé a iniciar sesión e intentá de nuevo.");
+      return;
+    }
+
     setLoading(true);
 
     const form = e.currentTarget;
@@ -83,44 +78,30 @@ export default function ProfessionalSetupPage() {
       return;
     }
 
-    const experienceRaw = (data.get("experience") as string) || null;
-
     const body = {
-      name: (data.get("businessName") as string) || session!.user.name || session!.user.email!,
+      name: businessName || session!.user.name || session!.user.email!,
       serviceId,
       hourlyRate: data.get("hourlyRate") ? parseInt(data.get("hourlyRate") as string) : null,
       location: (data.get("workArea") as string) || null,
       description: (data.get("description") as string) || null,
-      experience: experienceRaw,
-      availability: (existing?.availability as string) ?? "disponible",
+      experience: (data.get("experience") as string) || null,
+      availability: existing?.availability ?? "disponible",
       tags: selectedTags,
       phone: (data.get("phone") as string) || null,
     };
 
-    // Guardar localmente siempre (funciona sin backend)
-    localStorage.setItem("encasa_prof_profile", JSON.stringify(body));
-
-    // Sincronizar con backend
-    if (session!.user.backendToken) {
-      import("@/lib/api")
-        .then(({ apiFetch }) =>
-          apiFetch("/professionals/me", {
-            method: "POST",
-            token: session!.user.backendToken,
-            body: JSON.stringify(body),
-          })
-        )
-        .then(() => {
-          setSyncedToBackend(true);
-          update({ role: "professional", hasProfessionalProfile: true });
-        })
-        .catch(() => setSyncedToBackend(false));
-    } else {
-      setSyncedToBackend(false);
+    try {
+      const saved = existing
+        ? await updateProfessionalProfile(body, token)
+        : await createProfessionalProfile(body, token);
+      setExisting(saved);
+      await update({ role: "professional", hasProfessionalProfile: true });
+      setSaved(true);
+    } catch {
+      setError("No pudimos guardar tu perfil. Intentá de nuevo en unos minutos.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
-    setSaved(true);
   }
 
   if (saved) {
@@ -129,26 +110,9 @@ export default function ProfessionalSetupPage() {
         <div className="max-w-md w-full text-center">
           <div className="text-6xl mb-4">✅</div>
           <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2">¡Perfil guardado!</h2>
-          <p className="text-zinc-600 dark:text-zinc-400 mb-4">
-            Tu perfil profesional fue configurado correctamente.
+          <p className="text-zinc-600 dark:text-zinc-400 mb-8">
+            Tu perfil profesional fue configurado correctamente y ya es visible para los clientes.
           </p>
-
-          {/* Sync status */}
-          {syncedToBackend === true && (
-            <div className="mb-6 flex items-center justify-center gap-2 text-sm text-green-600 dark:text-green-400">
-              <span>🟢</span>
-              <span>Sincronizado con el servidor. Tu perfil es visible para los clientes.</span>
-            </div>
-          )}
-          {syncedToBackend === false && (
-            <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded-xl text-sm text-yellow-800 dark:text-yellow-300 text-left">
-              <p className="font-semibold mb-1">⚠️ Guardado solo localmente</p>
-              <p>No se pudo conectar con el servidor. Tu perfil está guardado en este dispositivo pero <strong>no es visible para los clientes</strong> todavía. Asegurate de que el backend esté corriendo y volvé a guardar.</p>
-            </div>
-          )}
-          {syncedToBackend === null && (
-            <div className="mb-6 text-sm text-zinc-400">Verificando sincronización...</div>
-          )}
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
@@ -210,7 +174,7 @@ export default function ProfessionalSetupPage() {
               const changed =
                 (data.get("businessName") as string) !== (existing?.name ?? session!.user.name ?? "") ||
                 (data.get("serviceId") as string) !== (existing?.serviceId ?? "") ||
-                (data.get("experience") as string) !== (existing?.experience ?? "") ||
+                (data.get("experience") as string) !== (existing?.experience != null ? String(existing.experience) : "") ||
                 (data.get("hourlyRate") as string) !== String(existing?.hourlyRate ?? "") ||
                 (data.get("workArea") as string) !== (existing?.location ?? "") ||
                 (data.get("description") as string) !== (existing?.description ?? "") ||
@@ -251,7 +215,7 @@ export default function ProfessionalSetupPage() {
               <label htmlFor="experience" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Años de experiencia
               </label>
-              <select id="experience" name="experience" defaultValue={existing?.experience ?? ""} className={inputClass}>
+              <select id="experience" name="experience" defaultValue={existing?.experience != null ? String(existing.experience) : ""} className={inputClass}>
                 <option value="">Seleccioná tu experiencia</option>
                 <option value="0-2">Menos de 2 años</option>
                 <option value="2-5">2 a 5 años</option>
