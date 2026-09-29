@@ -89,7 +89,13 @@ export async function getReviews(): Promise<Review[]> {
 }
 
 export async function createBooking(
-  data: { professionalId: number; scheduledDate: string; estimatedHours?: number | null; notes?: string | null },
+  data: {
+    professionalId: number;
+    scheduledDate: string;
+    estimatedHours?: number | null;
+    notes?: string | null;
+    photoUrls?: string[];
+  },
   token: string
 ): Promise<Booking> {
   return apiFetch<Booking>("/bookings", {

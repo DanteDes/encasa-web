@@ -255,6 +255,21 @@ export default function SolicitudesPage() {
                     </p>
                   )}
 
+                  {b.photoUrls && b.photoUrls.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3 pl-13">
+                      {b.photoUrls.map((url, i) => (
+                        <a key={url} href={url} target="_blank" rel="noopener noreferrer">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={url}
+                            alt={`Foto ${i + 1} de la solicitud de ${b.clientName ?? "cliente"}`}
+                            className="w-16 h-16 object-cover rounded-lg border border-zinc-200 dark:border-zinc-700 hover:opacity-80 transition-opacity"
+                          />
+                        </a>
+                      ))}
+                    </div>
+                  )}
+
                   <div className="flex flex-wrap gap-3 text-xs text-zinc-500 dark:text-zinc-400 mb-4 pl-13">
                     <span>📅 {formatDate(b.scheduledDate)}</span>
                     {b.estimatedHours && <span>⏱ {b.estimatedHours}h estimadas</span>}

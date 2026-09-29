@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import FavoriteButton from "@/components/FavoriteButton";
 import { createBooking } from "@/lib/api";
+import { uploadBookingPhoto, MAX_BOOKING_PHOTOS, MAX_PHOTO_SIZE_MB } from "@/lib/cloudinary";
 
 interface Props {
   id: number;
@@ -14,6 +15,11 @@ interface Props {
 }
 
 type Step = "idle" | "form" | "success" | "error";
+
+interface PickedPhoto {
+  file: File;
+  previewUrl: string;
+}
 
 function buildWaLink(phone: string, name: string, notes: string, date: string) {
   const formatted = new Date(date).toLocaleDateString("es-AR", {
@@ -30,8 +36,11 @@ export default function ProfessionalActions({ id, name, phone, serviceId }: Prop
   const router = useRouter();
   const [step, setStep] = useState<Step>("idle");
   const [loading, setLoading] = useState(false);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [submittedData, setSubmittedData] = useState<{ notes: string; date: string } | null>(null);
+  const [photos, setPhotos] = useState<PickedPhoto[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isProfessional = session?.user?.role === "professional";
   if (isProfessional) return null;
@@ -42,6 +51,42 @@ export default function ProfessionalActions({ id, name, phone, serviceId }: Prop
       return;
     }
     setStep("form");
+  }
+
+  function closeModal() {
+    photos.forEach((p) => URL.revokeObjectURL(p.previewUrl));
+    setPhotos([]);
+    setStep("idle");
+  }
+
+  function handlePickPhotos(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = ""; // allow picking the same file again after removing it
+
+    const room = MAX_BOOKING_PHOTOS - photos.length;
+    if (room <= 0) {
+      setErrorMsg(`Máximo ${MAX_BOOKING_PHOTOS} fotos por solicitud.`);
+      return;
+    }
+
+    const accepted: PickedPhoto[] = [];
+    for (const file of files.slice(0, room)) {
+      if (file.size > MAX_PHOTO_SIZE_MB * 1024 * 1024) {
+        setErrorMsg(`"${file.name}" pesa más de ${MAX_PHOTO_SIZE_MB}MB, no se agregó.`);
+        continue;
+      }
+      accepted.push({ file, previewUrl: URL.createObjectURL(file) });
+    }
+
+    if (accepted.length > 0) setErrorMsg("");
+    setPhotos((prev) => [...prev, ...accepted]);
+  }
+
+  function removePhoto(index: number) {
+    setPhotos((prev) => {
+      URL.revokeObjectURL(prev[index].previewUrl);
+      return prev.filter((_, i) => i !== index);
+    });
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -71,10 +116,24 @@ export default function ProfessionalActions({ id, name, phone, serviceId }: Prop
     setErrorMsg("");
 
     try {
+      let photoUrls: string[] | undefined;
+      if (photos.length > 0) {
+        setUploadingPhotos(true);
+        try {
+          photoUrls = await Promise.all(photos.map((p) => uploadBookingPhoto(p.file)));
+        } catch {
+          throw new Error("No se pudieron subir las fotos. Probá de nuevo.");
+        } finally {
+          setUploadingPhotos(false);
+        }
+      }
+
       await createBooking(
-        { professionalId: id, scheduledDate, estimatedHours, notes },
+        { professionalId: id, scheduledDate, estimatedHours, notes, photoUrls },
         session.user.backendToken
       );
+      photos.forEach((p) => URL.revokeObjectURL(p.previewUrl));
+      setPhotos([]);
       setSubmittedData({ notes, date: scheduledDate });
       setStep("success");
     } catch (err: unknown) {
@@ -122,7 +181,7 @@ export default function ProfessionalActions({ id, name, phone, serviceId }: Prop
       {step !== "idle" && (
         <div
           className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          onClick={() => setStep("idle")}
+          onClick={closeModal}
         >
           <div
             className="bg-white dark:bg-zinc-900 rounded-2xl p-8 max-w-md w-full shadow-xl"
@@ -182,10 +241,62 @@ export default function ProfessionalActions({ id, name, phone, serviceId }: Prop
                     />
                   </div>
 
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                      Fotos del trabajo (opcional)
+                    </label>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-2">
+                      Ayudan a {name.split(" ")[0]} a evaluar el trabajo antes de ir. Hasta {MAX_BOOKING_PHOTOS}.
+                    </p>
+
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handlePickPhotos}
+                      className="hidden"
+                    />
+
+                    <div className="flex flex-wrap gap-2">
+                      {photos.map((p, i) => (
+                        <div key={p.previewUrl} className="relative w-16 h-16">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={p.previewUrl}
+                            alt={`Foto ${i + 1}`}
+                            className="w-16 h-16 object-cover rounded-lg border border-zinc-200 dark:border-zinc-700"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removePhoto(i)}
+                            aria-label="Quitar foto"
+                            className="absolute -top-2 -right-2 w-5 h-5 bg-zinc-900 text-white rounded-full text-xs flex items-center justify-center hover:bg-zinc-700"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+
+                      {photos.length < MAX_BOOKING_PHOTOS && (
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="w-16 h-16 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg flex items-center justify-center text-zinc-400 hover:border-orange-500 hover:text-orange-500 transition-colors"
+                          aria-label="Agregar foto (cámara o galería)"
+                        >
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
                   <div className="flex gap-3 pt-2">
                     <button
                       type="button"
-                      onClick={() => setStep("idle")}
+                      onClick={closeModal}
                       className="flex-1 px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors text-sm font-medium"
                     >
                       Cancelar
@@ -195,7 +306,7 @@ export default function ProfessionalActions({ id, name, phone, serviceId }: Prop
                       disabled={loading}
                       className="flex-1 px-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-semibold disabled:opacity-50"
                     >
-                      {loading ? "Enviando..." : "Enviar solicitud"}
+                      {uploadingPhotos ? "Subiendo fotos..." : loading ? "Enviando..." : "Enviar solicitud"}
                     </button>
                   </div>
                 </form>
@@ -232,7 +343,7 @@ export default function ProfessionalActions({ id, name, phone, serviceId }: Prop
                     </a>
                   )}
                   <button
-                    onClick={() => setStep("idle")}
+                    onClick={closeModal}
                     className="px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors text-sm font-medium"
                   >
                     Cerrar
@@ -258,7 +369,7 @@ export default function ProfessionalActions({ id, name, phone, serviceId }: Prop
                     Reintentar
                   </button>
                   <button
-                    onClick={() => setStep("idle")}
+                    onClick={closeModal}
                     className="flex-1 px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors text-sm font-medium"
                   >
                     Cerrar
